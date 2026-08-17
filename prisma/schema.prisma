@@ -1,0 +1,245 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================================
+// WORKSPACE — one per company (tenant)
+// ============================================================
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users        User[]
+  feedback     Feedback[]
+  themes       Theme[]
+  reports      Report[]
+  invites      InviteToken[]
+  chatSessions ChatSession[]
+
+  @@map("workspaces")
+}
+
+// ============================================================
+// USER — belongs to one workspace; has a role
+// ============================================================
+enum Role {
+  ADMIN
+  ANALYST
+  VIEWER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String?
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(VIEWER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  reports      Report[]
+  chatSessions ChatSession[]
+
+  @@index([workspaceId])
+  @@map("users")
+}
+
+// ============================================================
+// FEEDBACK — core data entity; always scoped to workspace
+// ============================================================
+enum Sentiment {
+  POS
+  NEU
+  NEG
+}
+
+enum FeedbackStatus {
+  NEW
+  REVIEWED
+  ACTIONED
+}
+
+enum Channel {
+  support_ticket
+  app_store
+  nps_survey
+  sales_call
+  community
+  portal
+  other
+}
+
+model Feedback {
+  id            String         @id @default(cuid())
+  content       String         @db.Text
+  channel       Channel        @default(other)
+  sourceRef     String?
+  customerLabel String?
+
+  // AI classification fields — set after classification, NULL before
+  sentiment      Sentiment?
+  sentimentScore Float?         // -1.0 to 1.0
+  featureArea    String?
+  rationale      String?        @db.Text
+  classified     Boolean        @default(false)
+
+  status    FeedbackStatus @default(NEW)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  themes    FeedbackTheme[]
+  embedding Embedding?
+
+  @@index([workspaceId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, sentiment])
+  @@index([workspaceId, channel])
+  @@index([workspaceId, createdAt])
+  @@map("feedback")
+}
+
+// ============================================================
+// THEME — named cluster of related feedback
+// ============================================================
+model Theme {
+  id          String  @id @default(cuid())
+  name        String
+  description String? @db.Text
+  color       String  @default("#6366F1") // hex color for UI
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  feedbackThemes FeedbackTheme[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+  @@map("themes")
+}
+
+// ============================================================
+// FEEDBACK_THEME — join table: many feedback ↔ many themes
+// ============================================================
+model FeedbackTheme {
+  feedbackId String
+  themeId    String
+  confidence Float  @default(1.0) // 0..1 — how confident the AI is
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  theme    Theme    @relation(fields: [themeId], references: [id], onDelete: Cascade)
+
+  @@id([feedbackId, themeId])
+  @@map("feedback_themes")
+}
+
+// ============================================================
+// EMBEDDING — pgvector vector for semantic search (Ask LOOP)
+// ============================================================
+model Embedding {
+  id         String   @id @default(cuid())
+  vector     String   @db.Text // stored as JSON array string; use raw SQL for pgvector ops
+  createdAt  DateTime @default(now())
+
+  feedbackId String   @unique
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@map("embeddings")
+}
+
+// ============================================================
+// REPORT — generated Voice-of-Customer reports
+// ============================================================
+model Report {
+  id          String   @id @default(cuid())
+  title       String
+  periodStart DateTime
+  periodEnd   DateTime
+  contentJson Json     // structured report content
+  createdAt   DateTime @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  generatedById String
+  generatedBy   User   @relation(fields: [generatedById], references: [id])
+
+  @@index([workspaceId])
+  @@index([workspaceId, createdAt])
+  @@map("reports")
+}
+
+// ============================================================
+// INVITE_TOKEN — for inviting team members by email
+// ============================================================
+model InviteToken {
+  id        String   @id @default(cuid())
+  email     String
+  role      Role     @default(VIEWER)
+  token     String   @unique @default(cuid())
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@map("invite_tokens")
+}
+
+// ============================================================
+// CHAT_SESSION & CHAT_MESSAGE — persistent AI Copilot conversations
+// ============================================================
+model ChatSession {
+  id        String   @id @default(cuid())
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  messages    ChatMessage[]
+
+  @@index([workspaceId])
+  @@index([userId])
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  role      String   // "user" | "assistant"
+  content   String   @db.Text
+  citedIds  String[] // feedback IDs cited
+  createdAt DateTime @default(now())
+
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@map("chat_messages")
+}
