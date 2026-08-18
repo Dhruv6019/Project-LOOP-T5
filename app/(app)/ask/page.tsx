@@ -131,7 +131,14 @@ export default function AskPage() {
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Auto-open sidebar only on large desktop screens
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+      setSidebarOpen(true);
+    }
+  }, []);
 
   // 1. Fetch all chat sessions from Database on mount
   const fetchSessions = async () => {
@@ -406,8 +413,8 @@ export default function AskPage() {
 
       {/* Main Container */}
       <div className="flex-1 flex flex-col h-full min-w-0 relative">
-        {/* Mobile quick history bar */}
-        <div className="sm:hidden flex items-center justify-between pb-2 mb-1 shrink-0">
+        {/* Mobile & Tablet quick history bar */}
+        <div className="lg:hidden flex items-center justify-between pb-2 mb-1 shrink-0">
           <button
             onClick={() => setSidebarOpen(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-full transition-colors shadow-2xs"
