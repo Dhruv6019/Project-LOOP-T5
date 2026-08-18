@@ -17,26 +17,21 @@ export interface VolumeChartProps {
   cohortHeadline?: string;
 }
 
-const DEFAULT_SEGMENTS: AreaItem[] = [
-  { name: "18 – 24", count: 18, percent: 14.5 },
-  { name: "25 – 34", count: 34, percent: 28, isPeak: true },
-  { name: "35 – 44", count: 26, percent: 22 },
-  { name: "45 – 56", count: 19, percent: 16.2 },
-  { name: "56 – 65", count: 14, percent: 11.7 },
-  { name: "65+", count: 6, percent: 4.6 },
-];
-
 export function VolumeChart({
-  data = DEFAULT_SEGMENTS,
+  data,
   title = "Feedback volume by feature area?",
-  periodLabel = "In 2026",
-  sublabel = "Primary user cohort",
+  periodLabel = "Active Period",
+  sublabel = "Primary volume driver",
   cohortHeadline,
 }: VolumeChartProps) {
-  const chartData = data && data.length >= 3 ? data : DEFAULT_SEGMENTS;
+  if (!data || data.length === 0) {
+    return null;
+  }
+
+  const chartData = data;
   const maxPercent = Math.max(...chartData.map((d) => d.percent), 1);
   const peakItem = chartData.find((d) => d.isPeak) || chartData[0];
-  const displayHeadline = cohortHeadline || peakItem?.name || "1946 – 1996";
+  const displayHeadline = cohortHeadline || peakItem?.name || "Feature Areas";
 
   return (
     <div className="bg-white rounded-[28px] p-6 sm:p-7 border border-slate-100/90 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] flex flex-col justify-between space-y-6 transition-all duration-300 hover:shadow-[0_12px_35px_-5px_rgba(0,0,0,0.06)] hover:-translate-y-0.5">

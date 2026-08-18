@@ -27,27 +27,18 @@ const CHANNEL_ARCHETYPES: Record<
   portal: { defaultScore: 4.3, defaultXPercent: 54, defaultYPercent: 58, color: "#D946EF", tier: "mid" },
   nps_survey: { defaultScore: 4.1, defaultXPercent: 38, defaultYPercent: 58, color: "#FBBF24", tier: "mid" },
   sales_call: { defaultScore: 3.9, defaultXPercent: 14, defaultYPercent: 64, color: "#94A3B8", tier: "low" },
+  other: { defaultScore: 4.8, defaultXPercent: 82, defaultYPercent: 22, color: "#7C3AED", tier: "peak" },
 };
-
-const DEFAULT_METRICS: ChannelMetric[] = [
-  { channel: "sales_call", label: "Sales", count: 12, avgScore: 4.0, visits: 118, color: "#94A3B8" },
-  { channel: "nps_survey", label: "NPS", count: 20, avgScore: 4.1, visits: 189, color: "#FBBF24" },
-  { channel: "community", label: "Community", count: 18, avgScore: 4.6, visits: 210, color: "#F43F5E" },
-  { channel: "portal", label: "Portal", count: 16, avgScore: 4.3, visits: 216, color: "#D946EF" },
-  { channel: "app_store", label: "App Store", count: 35, avgScore: 4.7, visits: 453, color: "#6366F1" },
-  { channel: "support_ticket", label: "Support", count: 42, avgScore: 4.9, visits: 528, color: "#7C3AED" },
-];
 
 export function ChannelScatterChart({
   data,
   title = "Customer satisfaction vs interaction volume by channel",
 }: ChannelScatterChartProps) {
-  const items = data && data.length >= 3 ? data : DEFAULT_METRICS;
+  if (!data || data.length === 0) {
+    return null;
+  }
 
-  // Compute dynamic X-axis domain (visits / volume)
-  const maxVisits = Math.max(...items.map((i) => i.visits || i.count * 10), 600);
-  const xStep = Math.ceil(maxVisits / 5);
-  const xTicks = [xStep, xStep * 2, xStep * 3, xStep * 4, xStep * 5];
+  const items = data;
 
   const yTicks = [
     { score: 5.0, label: "5.0" },
@@ -63,28 +54,21 @@ export function ChannelScatterChart({
   );
 
   // 1. Initial mathematical coordinate projection
+  const maxVisits = Math.max(...items.map((i) => i.visits || i.count), 20);
+  const xStep = Math.max(5, Math.ceil(maxVisits / 4));
+  const xTicks = [xStep, xStep * 2, xStep * 3, xStep * 4];
+  const maxDomain = xStep * 4;
+
   const projectedBlocks = items.map((item) => {
     const rawKey = item.channel.toLowerCase();
-    const archetype = CHANNEL_ARCHETYPES[rawKey] || {
-      defaultScore: 4.3,
-      defaultXPercent: 50,
-      defaultYPercent: 50,
-      color: "#8B5CF6",
-      tier: "mid",
-    };
+    const visits = item.visits || item.count;
+    const score = Math.min(Math.max(item.avgScore ?? 4.2, 3.8), 5.0);
 
-    const visits = item.visits || item.count * 12;
-    const score = Math.min(Math.max(item.avgScore || archetype.defaultScore, 3.8), 5.0);
+    // Direct mathematical alignment with the 4 grid lines (5.0, 4.6, 4.2, 3.8)
+    const yPct = Math.round(12 + ((5.0 - score) / 1.2) * 68);
+    const xPct = Math.round(Math.min(Math.max(14 + (visits / maxDomain) * 72, 14), 86));
 
-    // Calculate baseline X and Y from real data with archetype anchor weighting
-    const calculatedX = Math.min(Math.max(10 + (visits / (xStep * 5)) * 76, 12), 88);
-    const calculatedY = Math.min(Math.max(16 + ((5.0 - score) / 1.2) * 60, 16), 76);
-
-    // Weighted blend between strictly calculated and balanced archetype space
-    const xPct = Math.round(calculatedX * 0.6 + archetype.defaultXPercent * 0.4);
-    const yPct = Math.round(calculatedY * 0.6 + archetype.defaultYPercent * 0.4);
-
-    const isPeak = rawKey === peakItem.channel.toLowerCase();
+    const isPeak = rawKey === peakItem.channel.toLowerCase() || (item.avgScore && item.avgScore >= 4.8);
 
     return {
       ...item,
@@ -93,7 +77,7 @@ export function ChannelScatterChart({
       xPct,
       yPct,
       isPeak,
-      tier: archetype.tier,
+      tier: score >= 4.7 ? "peak" : score >= 4.4 ? "high" : score >= 4.0 ? "mid" : "low",
     };
   });
 
@@ -156,18 +140,17 @@ export function ChannelScatterChart({
             <span
               className="w-2.5 h-2.5 rounded-full shadow-2xs shrink-0"
               style={{
-                backgroundColor:
-                  item.channel.toLowerCase().includes("support")
+                backgroundColor: item.color || (
+                  item.channel.toLowerCase().includes("support") || item.channel.toLowerCase().includes("pos")
                     ? "#7C3AED"
                     : item.channel.toLowerCase().includes("app")
                     ? "#6366F1"
-                    : item.channel.toLowerCase().includes("comm")
+                    : item.channel.toLowerCase().includes("comm") || item.channel.toLowerCase().includes("neg")
                     ? "#F43F5E"
                     : item.channel.toLowerCase().includes("nps")
                     ? "#FBBF24"
-                    : item.channel.toLowerCase().includes("sale")
-                    ? "#94A3B8"
-                    : "#D946EF",
+                    : "#D946EF"
+                ),
               }}
             />
             <span className="truncate">{item.label}</span>
@@ -191,6 +174,7 @@ export function ChannelScatterChart({
         <div className="absolute inset-0 pl-8 pr-2 pt-1 pointer-events-none">
           {mappedBlocks.map((block, idx) => {
             const raw = block.channel.toLowerCase();
+            const isPeak = block.isPeak;
 
             return (
               <div
@@ -201,36 +185,31 @@ export function ChannelScatterChart({
                 }}
                 className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-auto transition-all duration-300 hover:scale-110 hover:z-30 group cursor-pointer"
               >
-                {block.isPeak ? (
-                  // Peak Channel: Electric Violet with Black Pill Badge
-                  <div className="px-4 py-3.5 rounded-[18px] bg-gradient-to-tr from-[#7C3AED] to-[#A855F7] text-white font-extrabold text-sm shadow-[0_10px_25px_-5px_rgba(124,58,237,0.45)] flex items-center justify-center">
+                {isPeak ? (
+                  // Peak / 5.0★ Positive: Electric Violet with Black Pill Badge
+                  <div className="px-4 py-3 rounded-[18px] bg-gradient-to-tr from-[#7C3AED] to-[#A855F7] text-white font-extrabold text-sm shadow-[0_10px_25px_-5px_rgba(124,58,237,0.45)] flex items-center justify-center">
                     <span className="px-3 py-1 rounded-lg bg-slate-950 text-white text-xs font-black shadow-inner">
                       {block.visits}
                     </span>
                   </div>
-                ) : raw.includes("app") || block.tier === "high" ? (
-                  // App Store / High Tier: Indigo Gradient Block
+                ) : raw.includes("neg") || raw.includes("crit") || raw.includes("comm") || block.color === "#F43F5E" ? (
+                  // 3.8★ Critical / Coral-Red Block
+                  <div className="px-4 py-2.5 rounded-[16px] bg-gradient-to-r from-[#F43F5E] to-[#E11D48] text-white font-extrabold text-xs shadow-[0_6px_18px_rgba(244,63,94,0.4)]">
+                    {block.visits}
+                  </div>
+                ) : raw.includes("neu") || raw.includes("port") || block.color === "#D946EF" ? (
+                  // 4.2★ Neutral / Vibrant Magenta Block
+                  <div className="px-4 py-2.5 rounded-[16px] bg-gradient-to-r from-[#D946EF] to-[#C026D3] text-white font-extrabold text-xs shadow-[0_6px_18px_rgba(217,70,239,0.4)]">
+                    {block.visits}
+                  </div>
+                ) : raw.includes("app") || block.color === "#6366F1" ? (
+                  // App Store / Indigo Block
                   <div className="px-4.5 py-3 rounded-[16px] bg-gradient-to-tr from-[#6366F1] to-[#818CF8] text-white font-extrabold text-xs shadow-[0_8px_20px_-4px_rgba(99,102,241,0.4)]">
                     {block.visits}
                   </div>
-                ) : raw.includes("comm") ? (
-                  // Community: Coral-Red Block
-                  <div className="px-3.5 py-2 rounded-2xl bg-gradient-to-r from-[#F43F5E] to-[#E11D48] text-white font-extrabold text-xs shadow-[0_6px_16px_rgba(244,63,94,0.35)]">
-                    {block.visits}
-                  </div>
-                ) : raw.includes("nps") ? (
-                  // NPS: Amber Block
-                  <div className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#FBBF24] to-[#F59E0B] text-white font-bold text-[11px] shadow-xs">
-                    {block.visits}
-                  </div>
-                ) : raw.includes("port") || raw.includes("custom") ? (
-                  // Portal: Magenta Block
-                  <div className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#D946EF] to-[#C026D3] text-white font-bold text-[11px] shadow-xs">
-                    {block.visits}
-                  </div>
                 ) : (
-                  // Sales: Slate Block
-                  <div className="px-3.5 py-1.5 rounded-xl bg-[#94A3B8] text-white font-bold text-xs shadow-sm">
+                  // Amber / High Satisfaction Block
+                  <div className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#FBBF24] to-[#F59E0B] text-white font-extrabold text-xs shadow-[0_6px_16px_rgba(251,191,36,0.4)]">
                     {block.visits}
                   </div>
                 )}
@@ -248,7 +227,7 @@ export function ChannelScatterChart({
         <div className="flex justify-between text-[11px] font-bold text-slate-400 pt-3 pl-8 pr-2 border-t border-slate-100">
           {xTicks.map((tick, idx) => (
             <span key={idx}>
-              {tick >= 1000 ? `${Math.round(tick / 1000)}K` : `${tick}K`}
+              {tick >= 1000 ? `${(tick / 1000).toFixed(tick % 1000 === 0 ? 0 : 1)}k` : `${tick}`}
             </span>
           ))}
         </div>

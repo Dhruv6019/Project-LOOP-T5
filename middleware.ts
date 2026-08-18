@@ -27,7 +27,7 @@ export default auth((req: NextRequest & { auth: any }) => {
   }
 
   // 3. Public routes that guests can access
-  const publicRoutes = ["/login", "/signup", "/api/auth", "/api/feedback"];
+  const publicRoutes = ["/login", "/signup", "/terms", "/privacy", "/api/auth", "/api/feedback"];
   const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
   if (isPublicRoute) return NextResponse.next();
 

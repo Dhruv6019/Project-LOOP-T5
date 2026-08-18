@@ -267,8 +267,8 @@ export default function DashboardPage() {
           {/* Card 1: Top Left - Volume / Area Distribution with Highlight Peak */}
           <VolumeChart
             data={data?.areaDistribution}
-            title={data?.aiInsights?.chart1.title || "Feedback volume by feature area?"}
-            periodLabel={data?.aiInsights?.chart1.periodLabel || "In 2026"}
+            title={data?.aiInsights?.chart1.title || "Feedback volume by feature area"}
+            periodLabel={data?.aiInsights?.chart1.periodLabel || "Active Period"}
             sublabel={data?.aiInsights?.chart1.sublabel || "Primary volume driver"}
             cohortHeadline={data?.aiInsights?.chart1.headline}
           />
@@ -277,7 +277,7 @@ export default function DashboardPage() {
           <MultiChannelFlowChart
             data={data?.multiPeriodPillars}
             title={data?.aiInsights?.chart2.title || "Which channels drive customer feedback volume?"}
-            unitLabel={data?.aiInsights?.chart2.unitLabel || "M, items"}
+            unitLabel={data?.aiInsights?.chart2.unitLabel || "Signals"}
           />
 
           {/* Card 3: Bottom Left - Floating Blocks & Touchpoint Popularity */}
@@ -292,8 +292,8 @@ export default function DashboardPage() {
             totalCount={data?.stats.totalFeedback}
             title={data?.aiInsights?.chart4.title || "The most popular themes for customer feedback"}
             totalLabel={data?.aiInsights?.chart4.totalLabel || "Total analyzed feedback"}
-            totalValue={data?.aiInsights?.chart4.totalValue || `${data?.stats.totalFeedback || 64} items`}
-            unitLabel={data?.aiInsights?.chart4.unitLabel || "M, areas"}
+            totalValue={data?.aiInsights?.chart4.totalValue || `${data?.stats.totalFeedback || 0} signals`}
+            unitLabel={data?.aiInsights?.chart4.unitLabel || "Themes"}
           />
         </div>
       )}

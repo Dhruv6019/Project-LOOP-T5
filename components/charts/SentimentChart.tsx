@@ -91,21 +91,13 @@ function describeRoundedAnnularSector(
   ].join(" ");
 }
 
-const DEFAULT_REAL_SLICES: ThemeSlice[] = [
-  { name: "Mobile UX & Crashes", count: 46, percent: 38.0, isPrimary: true, color: "#F43F5E" },
-  { name: "Billing & Pricing Tiers", count: 24, percent: 10.9, color: "#FDE68A" },
-  { name: "Performance & Latency", count: 18, percent: 7.4, color: "#F5D0FE" },
-  { name: "Onboarding Flow", count: 12, percent: 4.1, color: "#EDE9FE" },
-  { name: "Integrations & Webhooks", count: 8, percent: 2.7, color: "#EEF2FF" },
-];
-
-const PASTEL_PALETTE = [
-  "#F43F5E", // Dominant Coral
-  "#FDE68A", // Peach / Warm Yellow
-  "#F5D0FE", // Lilac
-  "#EDE9FE", // Lavender
-  "#EEF2FF", // Ice Lilac
-  "#93C5FD", // Soft Sky
+const THEME_PALETTE = [
+  "#F43F5E", // Dominant Coral (Primary)
+  "#FBBF24", // Warm Amber Gold
+  "#D946EF", // Vibrant Magenta
+  "#8B5CF6", // Electric Violet
+  "#38BDF8", // Vibrant Sky Blue
+  "#10B981", // Emerald
 ];
 
 export function SentimentChart({
@@ -113,13 +105,16 @@ export function SentimentChart({
   totalCount,
   title = "The most popular themes for customer feedback",
   totalLabel = "Total analyzed feedback",
-  totalValue = "64 M",
-  unitLabel = "M, areas",
+  totalValue = "0 signals",
+  unitLabel = "Themes",
 }: SentimentChartProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
-  // Use incoming real data or default real-life dataset
-  const slices = data && data.length > 0 ? data.slice(0, 5) : DEFAULT_REAL_SLICES;
+  if (!data || data.length === 0) {
+    return null;
+  }
+
+  const slices = data.slice(0, 5);
   const displayTotal = totalCount !== undefined ? `${totalCount}` : totalValue;
 
   // Normalized sum for angle calculations
@@ -130,16 +125,41 @@ export function SentimentChart({
   const cy = 130;
   const rOuter = 110;
   const rInner = 68; // Chunky ring thickness (42px)
-  const cr = 7;
+  const cr = 6;
   const gapDeg = slices.length > 1 ? 4 : 0;
+  const totalGaps = slices.length * gapDeg;
+  const availableDegrees = 360 - totalGaps;
 
-  const totalUsableDegrees = 360 - slices.length * gapDeg;
+  // Compute constrained degree distribution (guaranteeing EXACT 360° total with no overflow)
+  const MIN_DEGREES = slices.length > 1 ? Math.min(22, availableDegrees / (slices.length * 1.5)) : 360;
+
+  // Calculate raw proportional degrees
+  const rawDegrees = slices.map((s) => (s.percent / totalPercentSum) * availableDegrees);
+
+  // Allocate minimum degrees to small slices and distribute remaining to large slices
+  let remainingDegrees = availableDegrees;
+  let remainingWeight = 0;
+  const allocatedDegrees = new Array(slices.length).fill(0);
+
+  rawDegrees.forEach((deg, i) => {
+    if (deg < MIN_DEGREES && slices.length > 1) {
+      allocatedDegrees[i] = MIN_DEGREES;
+      remainingDegrees -= MIN_DEGREES;
+    } else {
+      remainingWeight += slices[i].percent;
+    }
+  });
+
+  rawDegrees.forEach((deg, i) => {
+    if (allocatedDegrees[i] === 0) {
+      allocatedDegrees[i] = (slices[i].percent / (remainingWeight || 1)) * Math.max(0, remainingDegrees);
+    }
+  });
 
   // Compute exact slice geometry and centered text coordinates
   let currentStartAngle = 10;
   const computedSlices = slices.map((slice, idx) => {
-    const rawDegrees = (slice.percent / totalPercentSum) * totalUsableDegrees;
-    const sliceDegrees = Math.max(rawDegrees, 14); // Visible arc
+    const sliceDegrees = allocatedDegrees[idx];
     const startAngle = currentStartAngle;
     const endAngle = startAngle + sliceDegrees;
     currentStartAngle = endAngle + gapDeg;
@@ -158,7 +178,8 @@ export function SentimentChart({
 
     const pathData = describeRoundedAnnularSector(cx, cy, rInner, rOuter, startAngle, endAngle, cr);
     const isPrimary = slice.isPrimary ?? idx === 0;
-    const fillColor = isPrimary ? "url(#coralArcFull)" : PASTEL_PALETTE[idx % PASTEL_PALETTE.length];
+    const sliceColor = slice.color || THEME_PALETTE[idx % THEME_PALETTE.length];
+    const fillColor = isPrimary ? "url(#coralArcFull)" : sliceColor;
 
     const formattedPercent = Math.round(slice.percent);
     const isWideSlice = sliceDegrees >= 28;
@@ -177,6 +198,7 @@ export function SentimentChart({
       pathData,
       isPrimary,
       fillColor,
+      sliceColor,
       isWideSlice,
       formattedPercent,
       displayLabel: `${formattedPercent}%`,
@@ -232,7 +254,7 @@ export function SentimentChart({
                   <span
                     className="w-2.5 h-2.5 rounded-full shrink-0 shadow-2xs transition-transform"
                     style={{
-                      backgroundColor: item.isPrimary ? "#E11D48" : item.fillColor.startsWith("url") ? "#F43F5E" : item.fillColor,
+                      backgroundColor: item.isPrimary ? "#E11D48" : item.sliceColor,
                       transform: isHovered ? "scale(1.3)" : "scale(1)",
                     }}
                   />

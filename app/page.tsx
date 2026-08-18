@@ -899,57 +899,6 @@ export default function HomePage() {
             </TiltCard>
           </div>
 
-          {/* Right Column: Live Feed & Multi-Channel Sync */}
-          <div className="md:col-span-6">
-            <TiltCard className="bg-slate-100/90 rounded-[36px] p-8 sm:p-10 lg:p-12 border border-slate-200 relative">
-              
-              <div className="w-12 h-12 rounded-2xl bg-orange-100 border border-orange-200 flex items-center justify-center text-orange-600 mb-6 shadow-xs">
-                <Mail className="w-6 h-6" />
-              </div>
-
-              {/* Live Signal Thread Cards */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/90 space-y-4">
-                
-                {/* Feedback Item 1 */}
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center gap-3.5">
-                    <span className="px-2 py-1 rounded bg-blue-50 text-blue-600 text-[10px] font-bold">APP STORE</span>
-                    <div>
-                      <h5 className="text-xs font-bold text-slate-900 leading-none">Offline sync fails on checkout</h5>
-                      <p className="text-[11px] text-rose-500 font-medium mt-1">Negative (-0.85) • Performance</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">NEW</span>
-                </div>
-
-                {/* Feedback Item 2 */}
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center gap-3.5">
-                    <span className="px-2 py-1 rounded bg-purple-50 text-purple-600 text-[10px] font-bold">ZENDESK</span>
-                    <div>
-                      <h5 className="text-xs font-bold text-slate-900 leading-none">Love the new AI summary feature!</h5>
-                      <p className="text-[11px] text-emerald-600 font-medium mt-1">Positive (+0.92) • Analytics</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">REVIEWED</span>
-                </div>
-
-                {/* Feedback Item 3 */}
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between opacity-80">
-                  <div className="flex items-center gap-3.5">
-                    <span className="px-2 py-1 rounded bg-amber-50 text-amber-600 text-[10px] font-bold">NPS 9/10</span>
-                    <div>
-                      <h5 className="text-xs font-bold text-slate-900 leading-none">Onboarding flow was very smooth</h5>
-                      <p className="text-[11px] text-slate-500 font-medium mt-1">Positive (+0.70) • Onboarding</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">ACTIONED</span>
-                </div>
-
-              </div>
-            </TiltCard>
-          </div>
-
         </div>
       </section>
 
@@ -1222,90 +1171,188 @@ export default function HomePage() {
       </section>
 
       {/* ------------------------------------------------------------- */}
-      {/* 11. FULL-WIDTH FOOTER                                          */}
+      {/* 11. LUXURY ATMOSPHERIC FOOTER                                 */}
       {/* ------------------------------------------------------------- */}
-      <footer id="contact" className="py-16 bg-white text-slate-600 text-xs px-6 sm:px-12 lg:px-20 border-t border-slate-200/80 w-full">
-        <div className="w-full max-w-[1440px] mx-auto space-y-14">
+      <footer id="contact" className="relative w-full bg-gradient-to-b from-[#F8FAFC] via-30%-[#EFF5FE] via-70%-[#D3E3FC] to-[#A8C7F8] text-slate-800 pt-20 sm:pt-28 pb-0 px-6 sm:px-12 lg:px-20 overflow-hidden">
+        <div className="w-full max-w-[1440px] mx-auto space-y-16 relative z-10">
           
-          <div className="grid grid-cols-2 sm:grid-cols-6 gap-10 lg:gap-14">
+          {/* Top 3-Column Hero Grid: Left Contact + Center Dot Matrix CTA + Right Navigation */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-8 items-center justify-between">
             
-            {/* Brand column */}
-            <div className="col-span-2 space-y-4">
-              <div className="flex items-center gap-3">
-                <LoopLogo size={26} className="text-slate-950" />
-                <span className="font-extrabold text-sm tracking-tight text-slate-400">
-                  Project LOOP
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 max-w-sm leading-relaxed">
-                Autonomous multi-tenant customer feedback intelligence, Claude NLP sentiment classification, Voyage vector search, and executive VoC reporting.
-              </p>
-            </div>
+            {/* Left Column: Socials, Email & Address */}
+            <div className="md:col-span-4 space-y-6">
+              {/* Social Icons Row */}
+              <div className="flex items-center gap-4 text-slate-800">
+                <a
+                  href="https://facebook.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="w-8 h-8 rounded-full border border-slate-400/60 flex items-center justify-center hover:border-slate-900 hover:text-indigo-600 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12c0-5.523-4.477-10-10-10z" />
+                  </svg>
+                </a>
 
-            {/* App Modules */}
-            <div className="space-y-3">
-              <h5 className="font-bold text-slate-950 text-xs uppercase tracking-wider">App Modules</h5>
-              <ul className="space-y-2 text-xs text-slate-500">
-                <li><Link href="/login" className="hover:text-indigo-600">Dashboard</Link></li>
-                <li><Link href="/login" className="hover:text-indigo-600">Feedback Inbox</Link></li>
-                <li><Link href="/login" className="hover:text-indigo-600">Themes & Trends</Link></li>
-                <li><Link href="/login" className="hover:text-indigo-600">Ask LOOP Copilot</Link></li>
-                <li><Link href="/login" className="hover:text-indigo-600">VoC Reports</Link></li>
-              </ul>
-            </div>
+                <a
+                  href="https://linkedin.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="w-8 h-8 rounded-lg border border-slate-400/60 flex items-center justify-center hover:border-slate-900 hover:text-indigo-600 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76c.97 0 1.75-.79 1.75-1.76s-.78-1.75-1.75-1.75a1.75 1.75 0 0 0-1.75 1.75c0 .97.78 1.76 1.75 1.76m1.39 9.74v-8.37H5.07v8.37h2.78z" />
+                  </svg>
+                </a>
 
-            {/* Ingestion Channels */}
-            <div className="space-y-3">
-              <h5 className="font-bold text-slate-950 text-xs uppercase tracking-wider">Channels</h5>
-              <ul className="space-y-2 text-xs text-slate-500">
-                <li><Link href="/login" className="hover:text-indigo-600">Bulk CSV Upload</Link></li>
-                <li><a href="#features" className="hover:text-indigo-600">Zendesk Sync</a></li>
-                <li><a href="#features" className="hover:text-indigo-600">Intercom Live Feed</a></li>
-                <li><a href="#features" className="hover:text-indigo-600">App Store Reviews</a></li>
-                <li><a href="#features" className="hover:text-indigo-600">NPS Surveys</a></li>
-              </ul>
-            </div>
-
-            {/* Technology */}
-            <div className="space-y-3">
-              <h5 className="font-bold text-slate-950 text-xs uppercase tracking-wider">Technology</h5>
-              <ul className="space-y-2 text-xs text-slate-500">
-                <li><a href="#technology" className="hover:text-indigo-600">Claude 3.5 Sonnet NLP</a></li>
-                <li><a href="#technology" className="hover:text-indigo-600">Voyage AI Vectors</a></li>
-                <li><a href="#technology" className="hover:text-indigo-600">Multi-Tenant RBAC</a></li>
-                <li><a href="#technology" className="hover:text-indigo-600">Spike Alarms</a></li>
-              </ul>
-            </div>
-
-            {/* Connect & Socials */}
-            <div className="space-y-5">
-              <div className="space-y-3">
-                <h5 className="font-bold text-slate-950 text-xs uppercase tracking-wider">Account</h5>
-                <ul className="space-y-2 text-xs text-slate-500">
-                  <li><Link href="/login" className="hover:text-indigo-600">Sign In</Link></li>
-                  <li><Link href="/signup" className="hover:text-indigo-600">Create Account</Link></li>
-                </ul>
-              </div>
-
-              <div className="space-y-3 pt-1">
-                <a href="mailto:support@projectloop.ai" className="btn-pill-outline text-xs px-4 py-2 font-bold inline-block hover:border-slate-400">
-                  CONTACT US
+                <a
+                  href="https://x.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="X (Twitter)"
+                  className="w-8 h-8 flex items-center justify-center hover:text-indigo-600 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
                 </a>
               </div>
+
+              {/* Main Email */}
+              <a
+                href="mailto:support@projectloop.ai"
+                className="text-xl sm:text-2xl font-bold text-slate-900 hover:text-indigo-600 transition-colors tracking-tight block"
+              >
+                support@projectloop.ai
+              </a>
+
+              {/* Physical Location */}
+              <div className="text-xs sm:text-sm text-slate-600/90 font-medium space-y-1 leading-relaxed">
+                <p className="font-semibold text-slate-800">Project LOOP Intelligence Inc.</p>
+                <p>548 Market St, Suite 94002</p>
+                <p>San Francisco, CA 94104, United States</p>
+              </div>
+            </div>
+
+            {/* Center Column: Interactive CTA Hub with Dot Matrix Grid Wings */}
+            <div className="md:col-span-4 flex items-center justify-center">
+              <div className="flex items-center gap-0 sm:gap-2">
+                {/* Left Dot Matrix Wing */}
+                <svg width="140" height="100" viewBox="0 0 140 100" fill="none" className="hidden lg:block overflow-visible opacity-75 select-none pointer-events-none">
+                  <g fill="#93C5FD">
+                    {Array.from({ length: 5 }).map((_, r) =>
+                      Array.from({ length: 6 }).map((_, c) => (
+                        <circle
+                          key={`l-${r}-${c}`}
+                          cx={15 + c * 16}
+                          cy={16 + r * 16}
+                          r={(r === 2 && c === 4) || (r === 1 && c === 2) ? "2.5" : "1.5"}
+                          fill={(r === 2 && c === 4) || (r === 1 && c === 2) ? "#2563EB" : "#93C5FD"}
+                          opacity={(r === 2 && c === 4) || (r === 1 && c === 2) ? "0.95" : "0.5"}
+                        />
+                      ))
+                    )}
+                  </g>
+                  <path
+                    d="M 95 16 L 110 16 A 10 10 0 0 1 120 26 L 120 40 A 10 10 0 0 0 130 50 L 140 50"
+                    stroke="#93C5FD"
+                    strokeWidth="1"
+                    strokeDasharray="2.5 2.5"
+                  />
+                  <path
+                    d="M 95 80 L 110 80 A 10 10 0 0 0 120 70 L 120 60 A 10 10 0 0 1 130 50 L 140 50"
+                    stroke="#93C5FD"
+                    strokeWidth="1"
+                    strokeDasharray="2.5 2.5"
+                  />
+                </svg>
+
+                {/* Center Get Started Pill Button */}
+                <Link
+                  href="/signup"
+                  className="px-6 py-3 rounded-xl bg-slate-950 text-white font-bold text-sm shadow-xl flex items-center gap-2.5 hover:bg-slate-800 hover:scale-105 transition-all group shrink-0 border border-slate-800"
+                >
+                  <span className="tracking-tight text-white font-bold text-xs sm:text-sm">Get Started</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-slate-800 text-sky-400 border border-sky-400/30 tracking-wider">
+                    FREE
+                  </span>
+                </Link>
+
+                {/* Right Dot Matrix Wing */}
+                <svg width="140" height="100" viewBox="0 0 140 100" fill="none" className="hidden lg:block overflow-visible opacity-75 select-none pointer-events-none">
+                  <path
+                    d="M 0 50 L 10 50 A 10 10 0 0 0 20 40 L 20 26 A 10 10 0 0 1 30 16 L 45 16"
+                    stroke="#93C5FD"
+                    strokeWidth="1"
+                    strokeDasharray="2.5 2.5"
+                  />
+                  <path
+                    d="M 0 50 L 10 50 A 10 10 0 0 1 20 60 L 20 70 A 10 10 0 0 0 30 80 L 45 80"
+                    stroke="#93C5FD"
+                    strokeWidth="1"
+                    strokeDasharray="2.5 2.5"
+                  />
+                  <g fill="#93C5FD">
+                    {Array.from({ length: 5 }).map((_, r) =>
+                      Array.from({ length: 6 }).map((_, c) => (
+                        <circle
+                          key={`r-${r}-${c}`}
+                          cx={45 + c * 16}
+                          cy={16 + r * 16}
+                          r={(r === 1 && c === 4) || (r === 3 && c === 2) ? "2.5" : "1.5"}
+                          fill={(r === 1 && c === 4) || (r === 3 && c === 2) ? "#2563EB" : "#93C5FD"}
+                          opacity={(r === 1 && c === 4) || (r === 3 && c === 2) ? "0.95" : "0.5"}
+                        />
+                      ))
+                    )}
+                  </g>
+                </svg>
+              </div>
+            </div>
+
+            {/* Right Column: Project LOOP Modules & Navigation */}
+            <div className="md:col-span-4 flex flex-col items-start md:items-end space-y-3.5">
+              <a href="#features" className="text-base sm:text-lg font-bold text-slate-900 hover:text-indigo-600 transition-colors">
+                VoC Platform
+              </a>
+              <Link href="/ask" className="text-base sm:text-lg font-bold text-slate-900 hover:text-indigo-600 transition-colors">
+                AI Copilot
+              </Link>
+              <Link href="/ingest" className="text-base sm:text-lg font-bold text-slate-900 hover:text-indigo-600 transition-colors">
+                Channel Ingestion
+              </Link>
+              <Link href="/themes" className="text-base sm:text-lg font-bold text-slate-900 hover:text-indigo-600 transition-colors">
+                Theme Intelligence
+              </Link>
+              <Link href="/reports" className="text-base sm:text-lg font-bold text-slate-900 hover:text-indigo-600 transition-colors">
+                Executive Reports
+              </Link>
             </div>
 
           </div>
 
-          {/* Bottom Copyright Bar */}
-          <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-            <p>© 2026 Project LOOP. All rights reserved.</p>
-            <div className="flex gap-5">
-              <a href="#privacy" className="hover:text-slate-700">Privacy Policy</a>
-              <a href="#terms" className="hover:text-slate-700">Terms of Service</a>
-              <a href="#security" className="hover:text-slate-700">Security Posture</a>
-            </div>
+          {/* Bottom Row: Legal Terms, Copyright & Privacy Policy */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-slate-600/90 font-medium pt-8 pb-4">
+            <Link href="/terms" className="underline hover:text-slate-950 transition-colors">
+              Terms and conditions
+            </Link>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium">
+              © 2026 Project LOOP. All Rights Reserved
+            </p>
+            <Link href="/privacy" className="underline hover:text-slate-950 transition-colors">
+              Privacy Policy
+            </Link>
           </div>
 
+        </div>
+
+        {/* Massive Full-Width Architectural Brand Watermark ("loop") */}
+        <div className="w-full text-center overflow-hidden leading-none select-none pointer-events-none -mb-8 sm:-mb-14 lg:-mb-24 pt-4">
+          <span className="text-[130px] sm:text-[230px] md:text-[310px] lg:text-[390px] font-black tracking-tighter text-white/50 lowercase inline-block select-none">
+            loop
+          </span>
         </div>
       </footer>
 
