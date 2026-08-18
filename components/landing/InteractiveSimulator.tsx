@@ -147,7 +147,7 @@ export default function InteractiveSimulator() {
       : "from-amber-500/20 to-amber-500/5";
 
   return (
-    <div className="w-full bg-slate-950 text-white rounded-[36px] p-6 sm:p-10 lg:p-12 border border-slate-800 shadow-2xl relative overflow-hidden">
+    <div className="w-full bg-slate-950 text-white rounded-2xl sm:rounded-[36px] p-4 sm:p-8 lg:p-12 border border-slate-800 shadow-2xl relative overflow-hidden">
       {/* Background glow meshes */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />

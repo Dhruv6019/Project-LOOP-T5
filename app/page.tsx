@@ -318,41 +318,41 @@ export default function HomePage() {
       {/* ------------------------------------------------------------- */}
       {/* 3. HERO SECTION WITH GSAP REVEALS & 3D TILT MOCKUP            */}
       {/* ------------------------------------------------------------- */}
-      <section className="w-full pt-14 sm:pt-20 pb-20 sm:pb-28 px-6 sm:px-12 lg:px-20 relative">
-        <div className="w-full max-w-[1440px] mx-auto text-center space-y-8">
+      <section className="w-full pt-10 sm:pt-20 pb-16 sm:pb-28 px-4 sm:px-12 lg:px-20 relative">
+        <div className="w-full max-w-[1440px] mx-auto text-center space-y-6 sm:space-y-8">
           
           {/* Social Proof Announcement Pill */}
           <div
             ref={heroBadgeRef}
-            className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/90 border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.04)] backdrop-blur-md"
+            className="inline-flex items-center gap-3 px-3.5 sm:px-4 py-2 rounded-full bg-white/90 border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.04)] backdrop-blur-md max-w-full"
           >
-            <div className="flex -space-x-2 overflow-hidden">
+            <div className="flex -space-x-2 overflow-hidden shrink-0">
               <img
-                className="inline-block h-6 w-6 rounded-full ring-2 ring-white object-cover"
+                className="inline-block h-5 sm:h-6 w-5 sm:w-6 rounded-full ring-2 ring-white object-cover"
                 src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
                 alt="Member"
               />
               <img
-                className="inline-block h-6 w-6 rounded-full ring-2 ring-white object-cover"
+                className="inline-block h-5 sm:h-6 w-5 sm:w-6 rounded-full ring-2 ring-white object-cover"
                 src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
                 alt="Member"
               />
               <img
-                className="inline-block h-6 w-6 rounded-full ring-2 ring-white object-cover"
+                className="inline-block h-5 sm:h-6 w-5 sm:w-6 rounded-full ring-2 ring-white object-cover"
                 src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
                 alt="Member"
               />
             </div>
-            <span className="text-xs font-bold text-slate-800 tracking-tight flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-              Trusted by 500+ fast-moving product teams
+            <span className="text-[11px] sm:text-xs font-bold text-slate-800 tracking-tight flex items-center gap-1.5 truncate">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
+              <span>Trusted by 500+ product teams</span>
             </span>
           </div>
 
           {/* Main Hero Headline */}
           <h1
             ref={heroHeadingRef}
-            className="text-5xl sm:text-7xl lg:text-[84px] font-extrabold tracking-tight text-slate-950 leading-[1.04] max-w-5xl mx-auto text-balance"
+            className="text-3xl sm:text-5xl md:text-7xl lg:text-[84px] font-extrabold tracking-tight text-slate-950 leading-[1.08] max-w-5xl mx-auto text-balance"
           >
             Turn Customer Signals into{" "}
             <span className="text-gradient-radiant">
@@ -363,7 +363,7 @@ export default function HomePage() {
           {/* Subtitle */}
           <p
             ref={heroSubRef}
-            className="text-base sm:text-xl text-slate-600 max-w-3xl mx-auto font-normal leading-relaxed text-balance"
+            className="text-sm sm:text-lg md:text-xl text-slate-600 max-w-3xl mx-auto font-normal leading-relaxed text-balance"
           >
             Auto-classify sentiment across Zendesk, Intercom, App Store and CSVs, cluster emerging themes with Claude NLP, and query your feedback with grounded Voyage AI vector precision.
           </p>
@@ -396,7 +396,7 @@ export default function HomePage() {
           {/* ----------------------------------------------------------- */}
           <div ref={heroCardWrapperRef} className="pt-10 sm:pt-14 w-full max-w-[1240px] mx-auto">
             <TiltCard
-              className="bg-white border border-slate-200/90 shadow-[0_30px_90px_-20px_rgba(0,0,0,0.12)] p-6 sm:p-10 lg:p-12 text-left"
+              className="bg-white border border-slate-200/90 shadow-[0_30px_90px_-20px_rgba(0,0,0,0.12)] p-4 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl text-left"
               maxTilt={5}
               glowColor="rgba(99, 102, 241, 0.12)"
             >

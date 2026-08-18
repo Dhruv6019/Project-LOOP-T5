@@ -117,7 +117,7 @@ export function ChannelScatterChart({
   }
 
   return (
-    <div className="bg-white rounded-[28px] p-6 sm:p-7 border border-slate-100/90 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] flex flex-col justify-between space-y-5 transition-all duration-300 hover:shadow-[0_12px_35px_-5px_rgba(0,0,0,0.06)] hover:-translate-y-0.5">
+    <div className="bg-white rounded-2xl sm:rounded-[28px] p-4 sm:p-6 md:p-7 border border-slate-100/90 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] flex flex-col justify-between space-y-5 transition-all duration-300 hover:shadow-[0_12px_35px_-5px_rgba(0,0,0,0.06)] hover:-translate-y-0.5">
       {/* Top Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">

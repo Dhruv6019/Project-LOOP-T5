@@ -79,7 +79,7 @@ function LoginForm() {
   }
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xl p-8 sm:p-10 animate-fade-in space-y-6">
+    <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-xl p-5 sm:p-8 md:p-10 animate-fade-in space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight text-slate-950">Welcome back</h1>
         <p className="text-xs text-slate-500 font-medium mt-1">Sign in to your LOOP customer intelligence workspace</p>

@@ -105,7 +105,7 @@ export default function VoiceOfCustomerShowcase() {
 
       {/* Main Interactive Stage Box */}
       <TiltCard
-        className="w-full bg-white rounded-[36px] p-6 sm:p-10 lg:p-12 border border-slate-200/90 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)]"
+        className="w-full bg-white rounded-2xl sm:rounded-[36px] p-4 sm:p-8 lg:p-12 border border-slate-200/90 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)]"
         glowColor="rgba(99, 102, 241, 0.1)"
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">

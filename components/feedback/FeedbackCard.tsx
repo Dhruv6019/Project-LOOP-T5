@@ -156,7 +156,7 @@ export function FeedbackCard({ feedback, onStatusChange, onClassify, expanded = 
 
       {/* Bottom Action Buttons Row */}
       {(onStatusChange || onClassify) && (
-        <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100/90" onClick={(e) => e.stopPropagation()}>
+        <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-slate-100/90" onClick={(e) => e.stopPropagation()}>
           {onStatusChange && (
             <button
               onClick={handleStatusChange}

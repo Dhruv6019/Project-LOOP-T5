@@ -288,10 +288,20 @@ export default function AskPage() {
 
   return (
     <div className="max-w-7xl mx-auto flex gap-4 h-[calc(100vh-6.5rem)] animate-fade-in relative">
+      {/* Mobile Drawer Backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-slate-950/40 z-30 sm:hidden backdrop-blur-2xs"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Left Expandable / Collapsible Chat History Panel */}
       <div
         className={`${
-          sidebarOpen ? "w-64 sm:w-72" : "w-14"
+          sidebarOpen
+            ? "fixed inset-y-16 left-0 z-40 w-72 max-w-[85vw] bg-white shadow-2xl sm:relative sm:inset-auto sm:z-auto sm:shadow-xs sm:w-72"
+            : "hidden sm:flex sm:w-14"
         } shrink-0 bg-white border border-slate-200/80 rounded-2xl flex flex-col transition-all duration-300 ease-in-out shadow-xs overflow-hidden`}
       >
         {/* Top Control Bar with Expand/Collapse Toggle */}
@@ -396,6 +406,22 @@ export default function AskPage() {
 
       {/* Main Container */}
       <div className="flex-1 flex flex-col h-full min-w-0 relative">
+        {/* Mobile quick history bar */}
+        <div className="sm:hidden flex items-center justify-between pb-2 mb-1 shrink-0">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-full transition-colors shadow-2xs"
+          >
+            <span>💬</span>
+            <span>History ({sessions.length})</span>
+          </button>
+          <button
+            onClick={handleNewChat}
+            className="flex items-center gap-1 px-3 py-1.5 bg-slate-950 text-white text-xs font-bold rounded-full transition-colors shadow-2xs"
+          >
+            <span>+ New Chat</span>
+          </button>
+        </div>
         {messages.length === 0 ? (
           /* HERO LAYOUT WITH FULL EMBEDDED SUNSET ORANGE HALO */
           <div className="flex-1 flex flex-col items-center justify-center px-4 relative overflow-y-auto py-8">
