@@ -208,18 +208,15 @@ export default function HomePage() {
             </div>
           </Link>
 
-          {/* Desktop Navigation Links */}
+          {/* Desktop Navigation Links — 4 Main Links */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
             <a href="#features" className="hover:text-indigo-600 transition-colors">Features</a>
             <a href="#simulator" className="hover:text-indigo-600 transition-colors flex items-center gap-1.5">
               <span>Live Simulator</span>
               <span className="px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 text-[10px] font-bold">Interactive</span>
             </a>
-            <a href="#showcase" className="hover:text-indigo-600 transition-colors">Modules</a>
             <a href="#roi" className="hover:text-indigo-600 transition-colors">ROI Calculator</a>
-            <a href="#technology" className="hover:text-indigo-600 transition-colors">Technology</a>
             <a href="#governance" className="hover:text-indigo-600 transition-colors">Security</a>
-            <a href="#faqs" className="hover:text-indigo-600 transition-colors">FAQs</a>
           </nav>
 
           {/* Auth Actions: Magnetic Login / Get started */}
@@ -256,7 +253,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Mobile Dropdown Menu */}
+        {/* Mobile Dropdown Menu — 4 Main Links */}
         {mobileMenuOpen && (
           <div className="md:hidden pt-4 pb-3 border-t border-slate-100 space-y-2 animate-fade-in">
             <a
@@ -274,13 +271,6 @@ export default function HomePage() {
               Live Simulator
             </a>
             <a
-              href="#showcase"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded-xl text-sm font-bold text-slate-800 hover:bg-slate-50"
-            >
-              Modules & Capabilities
-            </a>
-            <a
               href="#roi"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-xl text-sm font-bold text-slate-800 hover:bg-slate-50"
@@ -288,25 +278,11 @@ export default function HomePage() {
               ROI Calculator
             </a>
             <a
-              href="#technology"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded-xl text-sm font-bold text-slate-800 hover:bg-slate-50"
-            >
-              Technology & AI
-            </a>
-            <a
               href="#governance"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-xl text-sm font-bold text-slate-800 hover:bg-slate-50"
             >
               Security & Compliance
-            </a>
-            <a
-              href="#faqs"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded-xl text-sm font-bold text-slate-800 hover:bg-slate-50"
-            >
-              FAQs
             </a>
           </div>
         )}
