@@ -280,11 +280,11 @@ export default function DevPanel() {
         </div>
       </header>
 
-      <div className="flex flex-1">
-        {/* Left Sidebar */}
-        <aside className="w-60 bg-white border-r border-slate-200/90 p-4 flex flex-col justify-between shrink-0">
+      <div className="flex flex-col md:flex-row flex-1">
+        {/* Left Sidebar / Top Mobile Navigation Bar */}
+        <aside className="w-full md:w-60 bg-white border-b md:border-b-0 md:border-r border-slate-200/90 p-3 sm:p-4 flex flex-col justify-between shrink-0">
           <div className="space-y-1">
-            <p className="px-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+            <p className="px-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2 hidden md:block">
               Configuration
             </p>
 

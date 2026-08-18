@@ -27,7 +27,9 @@ import {
   Headphones,
   Mail,
   Send,
-  Star
+  Star,
+  Menu,
+  X
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -82,6 +84,7 @@ export default function HomePage() {
   const [subscribed, setSubscribed] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>("EN");
   const [activeHeroCard, setActiveHeroCard] = useState<string>("files");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // GSAP hero animation refs
   const heroHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -195,7 +198,7 @@ export default function HomePage() {
       {/* ------------------------------------------------------------- */}
       {/* 2. HIGH-END GLASS NAVBAR FOR GUESTS                           */}
       {/* ------------------------------------------------------------- */}
-      <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-xl border-b border-slate-200/80 px-6 sm:px-12 lg:px-20 py-3.5 transition-all">
+      <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-xl border-b border-slate-200/80 px-4 sm:px-12 lg:px-20 py-3.5 transition-all">
         <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between">
           
           {/* Brand Logo: LOOP (Custom continuous vector wordmark) */}
@@ -208,7 +211,7 @@ export default function HomePage() {
             </div>
           </Link>
 
-          {/* Navigation Links */}
+          {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
             <a href="#features" className="hover:text-indigo-600 transition-colors">Features</a>
             <a href="#simulator" className="hover:text-indigo-600 transition-colors flex items-center gap-1.5">
@@ -223,10 +226,10 @@ export default function HomePage() {
           </nav>
 
           {/* Auth Actions: Magnetic Login / Get started */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <Link
               href="/login"
-              className="text-xs sm:text-sm font-bold text-slate-700 hover:text-slate-950 px-3 py-1.5 transition-colors"
+              className="text-xs sm:text-sm font-bold text-slate-700 hover:text-slate-950 px-2.5 sm:px-3 py-1.5 transition-colors"
             >
               Sign In
             </Link>
@@ -234,14 +237,82 @@ export default function HomePage() {
             <MagneticButton strength={0.25}>
               <Link
                 href="/signup"
-                className="btn-pill-dark text-xs px-5 sm:px-6 py-2.5 rounded-full font-bold shadow-md hover:shadow-xl hover:bg-indigo-600 transition-all flex items-center gap-2"
+                className="btn-pill-dark text-xs px-4 sm:px-6 py-2.5 rounded-full font-bold shadow-md hover:shadow-xl hover:bg-indigo-600 transition-all flex items-center gap-2"
               >
-                <span>Get Started Free</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <span>Get Started</span>
+                <ArrowRight className="w-3.5 h-3.5 hidden sm:inline" />
               </Link>
             </MagneticButton>
+
+            {/* Mobile Hamburger Menu Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-xl text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition-colors"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden pt-4 pb-3 border-t border-slate-100 space-y-2 animate-fade-in">
+            <a
+              href="#features"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-xl text-sm font-bold text-slate-800 hover:bg-slate-50"
+            >
+              Features
+            </a>
+            <a
+              href="#simulator"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-xl text-sm font-bold text-slate-800 hover:bg-slate-50"
+            >
+              Live Simulator
+            </a>
+            <a
+              href="#showcase"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-xl text-sm font-bold text-slate-800 hover:bg-slate-50"
+            >
+              Modules & Capabilities
+            </a>
+            <a
+              href="#roi"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-xl text-sm font-bold text-slate-800 hover:bg-slate-50"
+            >
+              ROI Calculator
+            </a>
+            <a
+              href="#technology"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-xl text-sm font-bold text-slate-800 hover:bg-slate-50"
+            >
+              Technology & AI
+            </a>
+            <a
+              href="#governance"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-xl text-sm font-bold text-slate-800 hover:bg-slate-50"
+            >
+              Security & Compliance
+            </a>
+            <a
+              href="#faqs"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-xl text-sm font-bold text-slate-800 hover:bg-slate-50"
+            >
+              FAQs
+            </a>
+          </div>
+        )}
       </header>
 
       {/* ------------------------------------------------------------- */}

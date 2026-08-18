@@ -224,7 +224,7 @@ export default function IngestPage() {
       </div>
 
       {/* Tabs Bar */}
-      <div className="flex border-b border-slate-200 gap-6">
+      <div className="flex border-b border-slate-200 gap-4 sm:gap-6 overflow-x-auto whitespace-nowrap pb-0.5">
         <button
           onClick={() => setTab("channel")}
           id="tab-channel"

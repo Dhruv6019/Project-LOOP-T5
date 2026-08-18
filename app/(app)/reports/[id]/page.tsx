@@ -259,7 +259,7 @@ ${content.recommendedActions?.map((a, i) => `${i + 1}. ${a}`).join("\n") || "Non
       </div>
 
       {/* Report Document Box */}
-      <div className="bg-white rounded-3xl p-8 md:p-12 border border-slate-200/90 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] space-y-8 print:border-none print:shadow-none">
+      <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 border border-slate-200/90 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] space-y-8 print:border-none print:shadow-none">
         
         {/* Document Header */}
         <div className="border-b border-slate-100 pb-6 space-y-2">

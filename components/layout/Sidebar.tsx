@@ -1,12 +1,14 @@
 "use client";
 // components/layout/Sidebar.tsx
-// Consistent Theme-Aligned Sidebar for Project LOOP
+// Consistent Theme-Aligned Responsive Sidebar for Project LOOP
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import LoopLogo from "@/components/ui/LoopLogo";
+import { useSidebar } from "@/components/layout/SidebarContext";
+import { X } from "lucide-react";
 
 const NAV_ITEMS = [
   {
@@ -69,20 +71,30 @@ const NAV_ITEMS = [
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { isOpen, closeSidebar } = useSidebar();
   const role = session?.user?.role;
   const userName = session?.user?.name || session?.user?.email?.split("@")[0] || "User";
 
-  return (
-    <aside className="w-60 shrink-0 h-screen sticky top-0 bg-white/95 backdrop-blur-md border-r border-slate-200/80 flex flex-col justify-between z-20">
+  const renderNavContent = () => (
+    <>
       <div>
         {/* Brand Logo */}
-        <div className="px-5 py-4 border-b border-slate-100">
-          <Link href="/" className="flex items-center justify-between group">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+          <Link href="/" onClick={closeSidebar} className="flex items-center gap-2 group">
             <LoopLogo size={26} className="text-slate-950 group-hover:text-indigo-600 transition-colors" />
             <span className="text-[10px] font-bold text-slate-500 px-2 py-0.5 rounded-full bg-slate-100 uppercase tracking-wider">
               {role ?? "APP"}
             </span>
           </Link>
+
+          {/* Close button for mobile drawer */}
+          <button
+            onClick={closeSidebar}
+            className="md:hidden p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100"
+            aria-label="Close menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Navigation items */}
@@ -95,6 +107,7 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={closeSidebar}
                 id={`nav-${item.href.replace("/", "")}`}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 select-none",
@@ -116,6 +129,7 @@ export function Sidebar() {
             {role === "ADMIN" && (
               <Link
                 href="/admin"
+                onClick={closeSidebar}
                 id="nav-admin"
                 className={cn(
                   "flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 select-none",
@@ -138,6 +152,7 @@ export function Sidebar() {
 
             <Link
               href="/settings"
+              onClick={closeSidebar}
               id="nav-settings"
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 select-none",
@@ -161,12 +176,13 @@ export function Sidebar() {
         <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50 border border-slate-100/90 shadow-2xs hover:border-slate-200 transition-all">
           <Link
             href="/settings"
+            onClick={closeSidebar}
             className="flex items-center gap-2.5 flex-1 min-w-0 group"
             title="Edit Profile"
           >
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-200 via-orange-300 to-amber-500 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
               <span className="text-slate-950 text-xs font-bold">
-                {userName[0].toUpperCase()}
+                {userName[0]?.toUpperCase()}
               </span>
             </div>
             <div className="flex-1 min-w-0">
@@ -181,6 +197,7 @@ export function Sidebar() {
           <div className="flex items-center gap-0.5 shrink-0">
             <Link
               href="/settings"
+              onClick={closeSidebar}
               title="Edit Profile"
               className="text-slate-400 hover:text-indigo-600 transition-colors p-1"
             >
@@ -202,6 +219,30 @@ export function Sidebar() {
           </div>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop Sticky Sidebar */}
+      <aside className="hidden md:flex w-60 shrink-0 h-screen sticky top-0 bg-white/95 backdrop-blur-md border-r border-slate-200/80 flex-col justify-between z-20">
+        {renderNavContent()}
+      </aside>
+
+      {/* Mobile Drawer Backdrop & Slide-out Sidebar */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          {/* Backdrop overlay */}
+          <div
+            className="fixed inset-0 bg-slate-950/50 backdrop-blur-xs transition-opacity"
+            onClick={closeSidebar}
+          />
+          {/* Drawer container */}
+          <aside className="relative w-72 max-w-[80vw] h-full bg-white shadow-2xl z-10 flex flex-col justify-between">
+            {renderNavContent()}
+          </aside>
+        </div>
+      )}
+    </>
   );
 }
