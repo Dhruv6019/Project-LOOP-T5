@@ -55,10 +55,10 @@ export function Topbar({ children }: TopbarProps) {
       <header className="h-16 border-b border-slate-100 bg-white/90 backdrop-blur-md sticky top-0 z-10 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
         {/* Left Section: Mobile Menu Button + Page Title */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          {/* Mobile Hamburger Toggle Button */}
+          {/* Mobile & Tablet Hamburger Toggle Button */}
           <button
             onClick={toggleSidebar}
-            className="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-950 hover:bg-slate-100 transition-colors shrink-0"
+            className="lg:hidden p-2 rounded-xl text-slate-600 hover:text-slate-950 hover:bg-slate-100 transition-colors shrink-0"
             aria-label="Open navigation menu"
           >
             <Menu className="w-5 h-5" />

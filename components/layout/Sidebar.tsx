@@ -225,13 +225,13 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop Sticky Sidebar */}
-      <aside className="hidden md:flex w-60 shrink-0 h-screen sticky top-0 bg-white/95 backdrop-blur-md border-r border-slate-200/80 flex-col justify-between z-20">
+      <aside className="hidden lg:flex w-60 shrink-0 h-screen sticky top-0 bg-white/95 backdrop-blur-md border-r border-slate-200/80 flex-col justify-between z-20">
         {renderNavContent()}
       </aside>
 
-      {/* Mobile Drawer Backdrop & Slide-out Sidebar */}
+      {/* Mobile & Tablet Drawer Backdrop & Slide-out Sidebar */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 md:hidden flex">
+        <div className="fixed inset-0 z-50 lg:hidden flex">
           {/* Backdrop overlay */}
           <div
             className="fixed inset-0 bg-slate-950/50 backdrop-blur-xs transition-opacity"

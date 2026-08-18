@@ -96,13 +96,13 @@ export default function MouseFollower() {
       {/* Center pinpoint cursor dot */}
       <div
         ref={cursorDotRef}
-        className="fixed top-0 left-0 w-2.5 h-2.5 bg-slate-900 rounded-full pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2 hidden md:block transition-opacity duration-300"
+        className="fixed top-0 left-0 w-2.5 h-2.5 bg-slate-900 rounded-full pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2 hidden lg:block transition-opacity duration-300"
         style={{ opacity: isVisible ? 1 : 0 }}
       />
       {/* Outer lagging smooth aura ring */}
       <div
         ref={cursorRingRef}
-        className="fixed top-0 left-0 w-9 h-9 border border-slate-400/50 rounded-full pointer-events-none z-[9998] -translate-x-1/2 -translate-y-1/2 hidden md:block transition-opacity duration-300 backdrop-blur-[0.5px]"
+        className="fixed top-0 left-0 w-9 h-9 border border-slate-400/50 rounded-full pointer-events-none z-[9998] -translate-x-1/2 -translate-y-1/2 hidden lg:block transition-opacity duration-300 backdrop-blur-[0.5px]"
         style={{ opacity: isVisible ? 1 : 0 }}
       />
     </>

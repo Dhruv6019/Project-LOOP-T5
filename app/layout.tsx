@@ -1,6 +1,6 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
+import MouseFollower from "@/components/landing/MouseFollower";
 
 export const metadata: Metadata = {
   title: {
@@ -15,7 +15,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="bg-background antialiased">{children}</body>
+      <body className="bg-background antialiased">
+        <MouseFollower />
+        {children}
+      </body>
     </html>
   );
 }

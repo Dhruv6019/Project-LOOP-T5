@@ -176,9 +176,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFC] text-slate-900 font-sans selection:bg-amber-200 selection:text-slate-900 relative overflow-x-hidden">
-      
-      {/* Interactive GSAP Smooth Mouse Follower */}
-      <MouseFollower />
 
       {/* ------------------------------------------------------------- */}
       {/* 1. FULL-WIDTH TOP AMBIENT MESH GRADIENTS & PARTICLE CANVAS    */}

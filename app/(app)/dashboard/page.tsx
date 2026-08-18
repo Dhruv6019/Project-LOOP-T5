@@ -92,9 +92,6 @@ export default function DashboardPage() {
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Customer Feedback Analytics
             </h1>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-violet-100 text-violet-700 tracking-wide">
-              {data?.workspace?.name ?? "Acme Inc"}
-            </span>
           </div>
           <p className="text-sm text-slate-500 mt-1 font-medium">
             Live AI synthesis of multi-channel Voice of Customer signals.
