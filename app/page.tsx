@@ -1227,13 +1227,6 @@ export default function HomePage() {
               >
                 support@projectloop.ai
               </a>
-
-              {/* Physical Location */}
-              <div className="text-xs sm:text-sm text-slate-600/90 font-medium space-y-1 leading-relaxed">
-                <p className="font-semibold text-slate-800">Project LOOP Intelligence Inc.</p>
-                <p>548 Market St, Suite 94002</p>
-                <p>San Francisco, CA 94104, United States</p>
-              </div>
             </div>
 
             {/* Center Column: Interactive CTA Hub with Dot Matrix Grid Wings */}
@@ -1314,9 +1307,9 @@ export default function HomePage() {
 
             {/* Right Column: Project LOOP Modules & Navigation */}
             <div className="md:col-span-4 flex flex-col items-start md:items-end space-y-3.5">
-              <a href="#features" className="text-base sm:text-lg font-bold text-slate-900 hover:text-indigo-600 transition-colors">
-                VoC Platform
-              </a>
+              <Link href="/dashboard" className="text-base sm:text-lg font-bold text-slate-900 hover:text-indigo-600 transition-colors">
+                Analytics Dashboard
+              </Link>
               <Link href="/ask" className="text-base sm:text-lg font-bold text-slate-900 hover:text-indigo-600 transition-colors">
                 AI Copilot
               </Link>
