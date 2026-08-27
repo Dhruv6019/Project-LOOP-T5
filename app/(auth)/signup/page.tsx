@@ -70,6 +70,37 @@ export default function SignupPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    // --- Client-side validation before hitting the API ---
+    const trimmedForm = {
+      workspaceName: form.workspaceName.trim(),
+      name: form.name.trim(),
+      email: form.email.trim(),
+      password: form.password,
+    };
+
+    if (trimmedForm.workspaceName.length < 2) {
+      setError("Company / Workspace name must be at least 2 characters.");
+      return;
+    }
+    if (trimmedForm.name.length < 2) {
+      setError("Your name must be at least 2 characters.");
+      return;
+    }
+    if (trimmedForm.password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (!/[A-Z]/.test(trimmedForm.password)) {
+      setError("Password must contain at least one uppercase letter (e.g. Abc1234).");
+      return;
+    }
+    if (!/[0-9]/.test(trimmedForm.password)) {
+      setError("Password must contain at least one number (e.g. Abc1234).");
+      return;
+    }
+    // -------------------------------------------------------
+
     setLoading(true);
 
     try {
@@ -77,12 +108,19 @@ export default function SignupPage() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(trimmedForm),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Failed to create account");
+        // Surface detailed Zod validation errors if available
+        if (data.details?.fieldErrors) {
+          const fieldErrors = data.details.fieldErrors as Record<string, string[]>;
+          const messages = Object.values(fieldErrors).flat();
+          setError(messages.join(" · ") || data.error || "Validation failed");
+        } else {
+          setError(data.error ?? "Failed to create account");
+        }
         return;
       }
 
@@ -94,8 +132,9 @@ export default function SignupPage() {
       });
 
       if (result?.error) {
-        setError("Account created! Please sign in.");
-        router.push("/login");
+        // Use hard navigation to avoid RSC fetch failures on cross-route redirect
+        window.location.href = "/login?message=account-created";
+        return;
       } else {
         router.push("/dashboard");
         router.refresh();

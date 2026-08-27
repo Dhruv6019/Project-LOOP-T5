@@ -2,6 +2,7 @@
 // Create a new user and workspace
 
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
 import { SignUpSchema } from "@/lib/validations";
@@ -13,6 +14,13 @@ export async function POST(request: NextRequest) {
     const parsed = SignUpSchema.safeParse(body);
 
     if (!parsed.success) {
+      // Log for Vercel function diagnostics — safe: logs field names and error, not values
+      console.warn(
+        "[signup] Zod validation failed. Received fields:",
+        Object.keys(body ?? {}),
+        "Errors:",
+        JSON.stringify(parsed.error.flatten()),
+      );
       return NextResponse.json(
         { error: "Validation failed", details: parsed.error.flatten() },
         { status: 400 },

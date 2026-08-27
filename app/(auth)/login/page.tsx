@@ -35,6 +35,8 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
+  const message = searchParams.get("message");
+
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -84,6 +86,12 @@ function LoginForm() {
         <h1 className="text-2xl font-extrabold tracking-tight text-slate-950">Welcome back</h1>
         <p className="text-xs text-slate-500 font-medium mt-1">Sign in to your LOOP customer intelligence workspace</p>
       </div>
+
+      {message === "account-created" && (
+        <div className="px-3.5 py-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-700 font-semibold">
+          ✓ Account created! Please sign in with your new credentials.
+        </div>
+      )}
 
       {/* Google OAuth Login */}
       <button
