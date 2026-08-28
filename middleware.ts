@@ -16,14 +16,14 @@ export default auth((req: NextRequest & { auth: any }) => {
   // 1. Root homepage: Redirect logged-in users to /dashboard, show homepage ONLY to guests
   if (pathname === "/") {
     if (isLoggedIn) {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
+      return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
     }
     return NextResponse.next();
   }
 
   // 2. Redirect logged-in users away from /login and /signup
   if (isLoggedIn && (pathname === "/login" || pathname === "/signup")) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
   }
 
   // 3. Public routes that guests can access
@@ -33,7 +33,7 @@ export default auth((req: NextRequest & { auth: any }) => {
 
   // 4. Protected app routes: Redirect unauthenticated guests to /login
   if (!isLoggedIn) {
-    const loginUrl = new URL("/login", req.url);
+    const loginUrl = new URL("/login", req.nextUrl);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
