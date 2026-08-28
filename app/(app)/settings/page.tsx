@@ -692,7 +692,7 @@ export default function SettingsPage() {
                     <span className="text-emerald-400">HTTP POST</span>
                   </div>
                   <pre className="text-slate-300 leading-relaxed">
-{`curl -X POST "${typeof window !== "undefined" ? window.location.origin : "http://localhost:3000"}/api/webhook/${workspaceSlug || "default"}" \\
+{`curl -X POST "${typeof window !== "undefined" ? window.location.origin : "https://projectloop.vercel.app"}/api/webhook/${workspaceSlug || "default"}" \\
   -H "Content-Type: application/json" \\
   -d '{
     "content": "Customer reported payment gateway timeout during checkout on iOS build 3.1",

@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     const inviterName = session.user.name || session.user.email?.split("@")[0] || "Workspace Admin";
     const inviterEmail = session.user.email || "admin@projectloop.ai";
 
-    const origin = request.nextUrl.origin || process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const origin = request.nextUrl.origin || process.env.NEXTAUTH_URL || "https://projectloop.vercel.app";
 
     // 1. Check if user already in workspace
     const existing = await db.user.findFirst({ where: { email, workspaceId } });

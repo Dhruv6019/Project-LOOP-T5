@@ -46,7 +46,7 @@ export async function POST(
     }
 
     const content: any = report.contentJson || {};
-    const origin = request.nextUrl.origin || process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const origin = request.nextUrl.origin || process.env.NEXTAUTH_URL || "https://projectloop.vercel.app";
     const reportUrl = `${origin}/reports/${report.id}`;
     const senderName = session.user.name || session.user.email?.split("@")[0] || "Team Member";
 

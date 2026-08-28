@@ -167,7 +167,7 @@ export async function GET(request: NextRequest) {
     ANTHROPIC_MODEL: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6",
     OPENAI_MODEL: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
     GEMINI_MODEL: process.env.GEMINI_MODEL ?? "gemini-2.0-flash",
-    NEXTAUTH_URL: process.env.NEXTAUTH_URL ?? "http://localhost:3000",
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL ?? "https://projectloop.vercel.app",
     DATABASE_URL: process.env.DATABASE_URL ? (process.env.DATABASE_URL.includes("neon") ? "Neon PostgreSQL" : "Configured") : "Not set",
     SMTP_HOST: process.env.SMTP_HOST ?? "Not set",
     DEV_PANEL_PASSWORD: process.env.DEV_PANEL_PASSWORD ? "Set (custom)" : "Default (dev-loop-2026)",
