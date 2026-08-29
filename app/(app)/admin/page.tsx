@@ -220,18 +220,14 @@ export default function AdminPage() {
         return;
       }
 
-      notify("success", resJson.message || "New workbook created and active!");
-      setNewWorkbookName("");
-      setShowCreateWorkbookModal(false);
-
       if (updateSession && resJson.data?.id) {
         await updateSession({ workspaceId: resJson.data.id });
       } else if (updateSession) {
         await updateSession();
       }
 
-      await loadAdminMetrics();
-      router.refresh();
+      // Hard reload so sidebar workbook name updates immediately
+      window.location.href = "/admin";
     } catch (err: any) {
       notify("error", err?.message || "An unexpected error occurred");
     } finally {

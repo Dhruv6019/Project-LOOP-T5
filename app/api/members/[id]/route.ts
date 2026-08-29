@@ -47,13 +47,16 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const target = await db.user.findFirst({
       where: { id: params.id, workspaceId: session.user.workspaceId },
     });
-    if (!target) return NextResponse.json({ error: "Member not found" }, { status: 404 });
+    if (!target) return NextResponse.json({ error: "Member not found in this workspace" }, { status: 404 });
     if (target.id === session.user.id) {
       return NextResponse.json({ error: "You cannot remove yourself" }, { status: 400 });
     }
 
-    await db.user.delete({ where: { id: params.id } });
-    return NextResponse.json({ data: { deleted: true } });
+    // Delete user record from workspace
+    await db.user.delete({
+      where: { id: params.id },
+    });
+    return NextResponse.json({ data: { removed: true } });
   } catch (error: any) {
     if (error.status) return NextResponse.json({ error: error.message }, { status: error.status });
     return NextResponse.json({ error: "Failed to remove member" }, { status: 500 });

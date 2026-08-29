@@ -1,6 +1,7 @@
 "use client";
 // components/layout/WorkbookSwitcher.tsx
 // Seamless Workbook / Multi-Tenant Workspace Switcher Dropdown
+// Only ADMIN users can switch workspaces; others just see their current workspace name
 
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
@@ -23,23 +24,31 @@ export function WorkbookSwitcher() {
   const { data: session, update: updateSession } = useSession();
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([]);
   const [activeWorkspace, setActiveWorkspace] = useState<WorkspaceItem | null>(null);
+  const [canSwitch, setCanSwitch] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const role = session?.user?.role;
+  const role = (session?.user as any)?.role;
   const isAdmin = role === "ADMIN";
 
   const fetchWorkspaces = async () => {
     try {
-      const res = await fetch("/api/workspaces");
+      const ts = Date.now();
+      const res = await fetch(`/api/workspaces?ts=${ts}`, { cache: "no-store" });
       if (res.ok) {
         const json = await res.json();
         const list: WorkspaceItem[] = json.data || [];
         setWorkspaces(list);
+        setCanSwitch(json.canSwitch ?? false);
 
-        const currentActiveId = json.activeWorkspaceId || session?.user?.workspaceId;
-        const current = list.find((w) => w.id === currentActiveId) || json.activeWorkspace || list[0] || null;
+        const currentActiveId =
+          json.activeWorkspaceId || (session?.user as any)?.workspaceId;
+        const current =
+          list.find((w) => w.id === currentActiveId) ||
+          json.activeWorkspace ||
+          list[0] ||
+          null;
         setActiveWorkspace(current);
       }
     } catch (err) {
@@ -49,12 +58,16 @@ export function WorkbookSwitcher() {
 
   useEffect(() => {
     fetchWorkspaces();
-  }, [session?.user?.workspaceId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [(session?.user as any)?.workspaceId]);
 
-  // Click outside listener
+  // Click-outside listener
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -71,26 +84,23 @@ export function WorkbookSwitcher() {
       setIsOpen(false);
       return;
     }
-
     if (!isAdmin) {
       setIsOpen(false);
       return;
     }
-
     try {
       setLoadingId(workspace.id);
       const res = await fetch(`/api/workspaces/${workspace.id}`, {
         method: "PATCH",
         cache: "no-store",
       });
-
       if (res.ok) {
         setActiveWorkspace(workspace);
         setIsOpen(false);
         if (updateSession) {
           await updateSession({ workspaceId: workspace.id });
         }
-        // Hard reload to guarantee all data refreshes with new workspaceId
+        // Hard reload — guarantees sidebar and all server data refresh
         window.location.href = window.location.pathname;
       }
     } catch (err) {
@@ -100,6 +110,28 @@ export function WorkbookSwitcher() {
     }
   };
 
+  // Non-admins: static display, no dropdown
+  if (!canSwitch) {
+    return (
+      <div className="px-3 py-2">
+        <div className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200/80">
+          <div className="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 font-bold text-[10px]">
+            <Building2 className="w-3.5 h-3.5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
+              Workbook
+            </div>
+            <p className="text-xs font-bold text-slate-900 truncate leading-tight mt-0.5">
+              {activeWorkspace?.name || "Loading..."}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Admins: full dropdown switcher
   return (
     <div className="relative px-3 py-2" ref={dropdownRef}>
       <button
@@ -113,31 +145,32 @@ export function WorkbookSwitcher() {
             <Building2 className="w-3.5 h-3.5" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
-                Workbook
-              </span>
-            </div>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
+              Workbook
+            </span>
             <p className="text-xs font-bold text-slate-900 truncate leading-tight mt-0.5 group-hover:text-indigo-600 transition-colors">
               {activeWorkspace?.name || "Active Workbook"}
             </p>
           </div>
         </div>
-
         <ChevronsUpDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 shrink-0 transition-colors" />
       </button>
 
-      {/* Dropdown Menu */}
+      {/* Dropdown — Admin only */}
       {isOpen && (
         <div className="absolute left-3 right-3 top-full mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-2 space-y-1 animate-scale-in">
           <div className="px-2.5 py-1.5 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider flex items-center justify-between border-b border-slate-100">
             <span>Switch Workbook</span>
-            <span className="text-indigo-600 font-bold font-mono">{workspaces.length} Total</span>
+            <span className="text-indigo-600 font-bold font-mono">
+              {workspaces.length} Total
+            </span>
           </div>
 
           <div className="max-h-56 overflow-y-auto py-1 space-y-0.5">
             {workspaces.map((ws) => {
-              const isCurrent = ws.id === (activeWorkspace?.id || session?.user?.workspaceId);
+              const isCurrent =
+                ws.id ===
+                (activeWorkspace?.id || (session?.user as any)?.workspaceId);
               const isLoading = loadingId === ws.id;
 
               return (
@@ -181,9 +214,9 @@ export function WorkbookSwitcher() {
             })}
           </div>
 
-          {/* Admin shortcuts in dropdown */}
+          {/* Admin shortcut */}
           {isAdmin && (
-            <div className="pt-1.5 border-t border-slate-100 space-y-1">
+            <div className="pt-1.5 border-t border-slate-100">
               <Link
                 href="/admin"
                 onClick={() => setIsOpen(false)}

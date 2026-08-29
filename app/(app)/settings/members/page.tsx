@@ -52,7 +52,8 @@ export default function MembersPage() {
   const fetchMembers = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/members");
+      const ts = Date.now();
+      const res = await fetch(`/api/members?ts=${ts}`, { cache: "no-store" });
       const json = await res.json();
       if (json.data) setMembers(json.data);
     } catch (err) {

@@ -258,7 +258,7 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // 5. Remove User from Workspace
+      // 5. Remove User from Workspace (does not delete the account)
       case "delete_user": {
         const { userId } = payload;
         if (!userId) {
@@ -267,17 +267,30 @@ export async function POST(request: NextRequest) {
 
         if (userId === session.user.id) {
           return NextResponse.json(
-            { error: "You cannot delete your own account from the admin console." },
+            { error: "You cannot remove yourself from the workspace." },
             { status: 400 }
           );
         }
 
+        // Verify the target user is in the same workspace (prevent cross-tenant removal)
+        const targetUser = await db.user.findFirst({
+          where: { id: userId, workspaceId },
+        });
+
+        if (!targetUser) {
+          return NextResponse.json(
+            { error: "Member not found in this workspace." },
+            { status: 404 }
+          );
+        }
+
+        // Remove user from workspace
         await db.user.delete({
           where: { id: userId },
         });
 
         return NextResponse.json({
-          message: "User successfully removed from workspace.",
+          message: "Member removed from workspace successfully.",
         });
       }
 

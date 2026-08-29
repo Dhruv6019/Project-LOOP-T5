@@ -12,12 +12,19 @@ const CreateWorkspaceSchema = z.object({
   seedDemoData: z.boolean().optional(),
 });
 
-// GET /api/workspaces — List all workspaces
+// GET /api/workspaces — List workspaces the current user can access
+// ADMINs: see all workspaces (they can switch between them)
+// Non-admins: see only their own workspace (no switching allowed)
 export async function GET() {
   try {
     const session = await requireAuth();
+    const userIsAdmin = isAdmin(session.user.role);
+
+    // Non-admins can only access their own workspace
+    const whereClause = userIsAdmin ? {} : { id: session.user.workspaceId };
 
     const workspaces = await db.workspace.findMany({
+      where: whereClause,
       include: {
         _count: {
           select: {
@@ -37,6 +44,7 @@ export async function GET() {
       data: workspaces,
       activeWorkspaceId: session.user.workspaceId,
       activeWorkspace,
+      canSwitch: userIsAdmin, // Flag so client can hide switcher for non-admins
     });
   } catch (error: any) {
     console.error("GET Workspaces error:", error);
