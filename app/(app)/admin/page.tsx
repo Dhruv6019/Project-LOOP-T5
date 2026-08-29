@@ -121,9 +121,10 @@ export default function AdminPage() {
   const loadAdminMetrics = async () => {
     try {
       setLoading(true);
+      const ts = Date.now(); // cache-bust
       const [resMetrics, resWs] = await Promise.all([
-        fetch("/api/admin/metrics"),
-        fetch("/api/workspaces"),
+        fetch(`/api/admin/metrics?ts=${ts}`, { cache: "no-store" }),
+        fetch(`/api/workspaces?ts=${ts}`, { cache: "no-store" }),
       ]);
 
       if (resMetrics.status === 403 || resWs.status === 403) {
@@ -139,6 +140,7 @@ export default function AdminPage() {
       if (resWs.ok) {
         const jsonWs = await resWs.json();
         setWorkspaces(jsonWs.data || []);
+        // Use live activeWorkspaceId from DB (requireAuth always does fresh DB lookup)
         setActiveWorkspaceId(jsonWs.activeWorkspaceId || "");
       }
     } catch (err) {
@@ -243,6 +245,7 @@ export default function AdminPage() {
       setActionLoading(`switch-${workspaceId}`);
       const res = await fetch(`/api/workspaces/${workspaceId}`, {
         method: "PATCH",
+        cache: "no-store",
       });
 
       const resJson = await res.json();
@@ -251,12 +254,15 @@ export default function AdminPage() {
         return;
       }
 
-      notify("success", resJson.message || "Switched active workbook!");
+      // Immediately update local state so UI reflects switch without waiting for reload
+      setActiveWorkspaceId(workspaceId);
+
       if (updateSession) {
         await updateSession({ workspaceId });
       }
-      await loadAdminMetrics();
-      router.refresh();
+
+      // Hard navigate to reload all server-side data fresh
+      window.location.href = "/admin";
     } catch (err: any) {
       notify("error", err?.message || "An unexpected error occurred");
     } finally {
@@ -554,7 +560,8 @@ export default function AdminPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {workspaces.map((ws) => {
-            const isActive = ws.id === data?.workspace?.id;
+            // Use activeWorkspaceId state — sourced from live DB via requireAuth()
+            const isActive = ws.id === activeWorkspaceId;
 
             return (
               <div

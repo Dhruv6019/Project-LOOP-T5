@@ -4,8 +4,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { Building2, Check, ChevronsUpDown, Plus, Shield, Sparkles, Database } from "lucide-react";
+import { Building2, Check, ChevronsUpDown, Plus } from "lucide-react";
 import Link from "next/link";
 
 interface WorkspaceItem {
@@ -22,7 +21,6 @@ interface WorkspaceItem {
 
 export function WorkbookSwitcher() {
   const { data: session, update: updateSession } = useSession();
-  const router = useRouter();
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([]);
   const [activeWorkspace, setActiveWorkspace] = useState<WorkspaceItem | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -83,6 +81,7 @@ export function WorkbookSwitcher() {
       setLoadingId(workspace.id);
       const res = await fetch(`/api/workspaces/${workspace.id}`, {
         method: "PATCH",
+        cache: "no-store",
       });
 
       if (res.ok) {
@@ -91,7 +90,8 @@ export function WorkbookSwitcher() {
         if (updateSession) {
           await updateSession({ workspaceId: workspace.id });
         }
-        router.refresh();
+        // Hard reload to guarantee all data refreshes with new workspaceId
+        window.location.href = window.location.pathname;
       }
     } catch (err) {
       console.error("Failed to switch workbook:", err);
