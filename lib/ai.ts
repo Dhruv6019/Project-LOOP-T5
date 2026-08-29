@@ -75,8 +75,8 @@ export async function executeUnifiedAI(options: CallAIOptions): Promise<string> 
   for (const provider of candidates) {
     try {
       if (provider === "anthropic") {
-        const client = new Anthropic({ apiKey: anthropicKey });
-        const model = process.env.AI_MODEL || process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
+        const client = new Anthropic({ apiKey: anthropicKey, timeout: 12000, maxRetries: 1 });
+        const model = process.env.AI_MODEL || process.env.ANTHROPIC_MODEL || "claude-3-5-sonnet-20241022";
         const message = await client.messages.create({
           model,
           max_tokens: maxTokens,
@@ -109,6 +109,7 @@ export async function executeUnifiedAI(options: CallAIOptions): Promise<string> 
             temperature,
             ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
           }),
+          signal: AbortSignal.timeout(12000),
         });
 
         if (!res.ok) {
@@ -143,6 +144,7 @@ export async function executeUnifiedAI(options: CallAIOptions): Promise<string> 
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(12000),
         });
 
         if (!res.ok) {
@@ -161,7 +163,7 @@ export async function executeUnifiedAI(options: CallAIOptions): Promise<string> 
       if (err?.message?.includes("credit balance") || err?.status === 400 || err?.status === 429) {
         if (provider === "anthropic") quotaExhausted.anthropic = true;
       }
-      // Continue to next candidate provider
+      // Failover quickly to next candidate provider without stalling
     }
   }
 

@@ -1,8 +1,8 @@
 "use client";
 // app/(app)/ask/page.tsx
-// Ask LOOP — Database-Backed AI Copilot with Expandable History Sidebar & Warm Sunset Halo
+// Ask LOOP — Real-Time Database-Backed AI Copilot with Instant History Sync & Warm Sunset Halo
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FeedbackCard } from "@/components/feedback/FeedbackCard";
 import { SentimentBadge, ChannelBadge } from "@/components/ui/Badge";
 import type { Feedback, Sentiment, Channel } from "@/types";
@@ -132,19 +132,32 @@ export default function AskPage() {
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Auto-open sidebar only on large desktop screens
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom of conversation whenever messages update or loading state changes
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [currentChat?.messages, loading]);
+
+  // Auto-open sidebar on desktop
   useEffect(() => {
     if (typeof window !== "undefined" && window.innerWidth >= 1024) {
       setSidebarOpen(true);
     }
   }, []);
 
-  // 1. Fetch all chat sessions from Database on mount
+  // 1. Fetch real-time chat sessions from Database
   const fetchSessions = async () => {
     try {
       setHistoryLoading(true);
-      const res = await fetch("/api/chats");
+      const ts = Date.now();
+      const res = await fetch(`/api/chats?ts=${ts}`, { cache: "no-store" });
       const json = await res.json();
       if (json.data && Array.isArray(json.data)) {
         setSessions(json.data);
@@ -169,7 +182,8 @@ export default function AskPage() {
 
     const fetchChatDetail = async () => {
       try {
-        const res = await fetch(`/api/chats/${currentSessionId}`);
+        const ts = Date.now();
+        const res = await fetch(`/api/chats/${currentSessionId}?ts=${ts}`, { cache: "no-store" });
         const json = await res.json();
         if (json.data) {
           setCurrentChat(json.data);
@@ -187,82 +201,116 @@ export default function AskPage() {
     setCurrentSessionId(null);
     setCurrentChat(null);
     setQuestion("");
+    setErrorMessage(null);
   };
 
-  // Delete chat session from Database
+  // Delete chat session from Database with instant optimistic UI update
   const handleDeleteSession = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      const res = await fetch(`/api/chats/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        setSessions((prev) => prev.filter((s) => s.id !== id));
-        if (currentSessionId === id) {
-          setCurrentSessionId(null);
-          setCurrentChat(null);
-        }
+      setSessions((prev) => prev.filter((s) => s.id !== id));
+      if (currentSessionId === id) {
+        setCurrentSessionId(null);
+        setCurrentChat(null);
       }
+      await fetch(`/api/chats/${id}`, { method: "DELETE" });
     } catch (err) {
       console.error("Failed to delete chat:", err);
     }
   };
 
-  // Send message to Database API
+  // Fast, Low-Latency Real-Time Ask Handler
   const handleAsk = async (qText: string) => {
     const q = qText.trim();
     if (!q || loading) return;
 
     setQuestion("");
     setLoading(true);
+    setErrorMessage(null);
+
+    const tempUserMsg: Message = {
+      id: "temp-" + Date.now(),
+      role: "user",
+      content: q,
+    };
 
     try {
-      let activeId = currentSessionId;
+      if (!currentSessionId) {
+        // CASE A: NEW SESSION — Single round-trip atomic creation + answer generation
+        setCurrentChat({
+          id: "temp-session",
+          title: q.slice(0, 36) + (q.length > 36 ? "..." : ""),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          messages: [tempUserMsg],
+        });
 
-      // Create new session in Database if none active
-      if (!activeId) {
-        const createRes = await fetch("/api/chats", {
+        const res = await fetch("/api/chats", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title: q.slice(0, 36) + (q.length > 36 ? "..." : ""),
-          }),
+          body: JSON.stringify({ question: q }),
         });
-        const createJson = await createRes.json();
-        if (createJson.data) {
-          activeId = createJson.data.id;
-          setCurrentSessionId(activeId);
-          setSessions((prev) => [createJson.data, ...prev]);
+
+        const json = await res.json();
+        if (!res.ok || !json.data) {
+          throw new Error(json.error || "Failed to generate AI response");
         }
-      }
 
-      if (!activeId) return;
+        const newSessionData = json.data;
+        setCurrentSessionId(newSessionData.id);
+        setCurrentChat({
+          id: newSessionData.id,
+          title: newSessionData.title,
+          createdAt: newSessionData.createdAt,
+          updatedAt: newSessionData.updatedAt || new Date().toISOString(),
+          messages: [
+            tempUserMsg,
+            {
+              id: newSessionData.messageId || "msg-ai-" + Date.now(),
+              role: "assistant",
+              content: newSessionData.answer,
+              citedItems: newSessionData.citedItems,
+            },
+          ],
+        });
 
-      // Add temporary optimistic user message
-      const tempUserMsg: Message = {
-        id: "temp-" + Date.now(),
-        role: "user",
-        content: q,
-      };
+        // Prepend new session to sidebar list immediately in real-time
+        setSessions((prev) => [
+          {
+            id: newSessionData.id,
+            title: newSessionData.title,
+            createdAt: newSessionData.createdAt,
+            updatedAt: new Date().toISOString(),
+            messages: [],
+          },
+          ...prev,
+        ]);
+      } else {
+        // CASE B: EXISTING ACTIVE SESSION
+        const activeId = currentSessionId;
 
-      setCurrentChat((prev) => ({
-        id: activeId!,
-        title: prev?.title || q.slice(0, 36),
-        createdAt: prev?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        messages: [...(prev?.messages || []), tempUserMsg],
-      }));
+        // Immediate optimistic render of user message
+        setCurrentChat((prev) => ({
+          id: activeId,
+          title: prev?.title || q.slice(0, 36),
+          createdAt: prev?.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          messages: [...(prev?.messages || []), tempUserMsg],
+        }));
 
-      // Call Chat Message API (saves to DB and returns AI analysis)
-      const res = await fetch(`/api/chats/${activeId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: q }),
-      });
+        const res = await fetch(`/api/chats/${activeId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: q }),
+        });
 
-      const json = await res.json();
+        const json = await res.json();
+        if (!res.ok || !json.data?.answer) {
+          throw new Error(json.error || "Failed to generate AI answer");
+        }
 
-      if (json.data?.answer) {
         const assistantMsg: Message = {
-          id: json.data.messageId || Date.now().toString(),
+          id: json.data.messageId || "msg-ai-" + Date.now(),
           role: "assistant",
           content: json.data.answer,
           citedItems: json.data.citedItems,
@@ -273,19 +321,32 @@ export default function AskPage() {
           return {
             ...prev,
             title: json.data.title || prev.title,
-            messages: [...prev.messages.filter((m) => !m.id.startsWith("temp-")), tempUserMsg, assistantMsg],
+            messages: [
+              ...prev.messages.filter((m) => !m.id.startsWith("temp-")),
+              tempUserMsg,
+              assistantMsg,
+            ],
           };
         });
 
-        // Update title in sessions list
-        if (json.data.title) {
-          setSessions((prev) =>
-            prev.map((s) => (s.id === activeId ? { ...s, title: json.data.title } : s))
-          );
-        }
+        // Bring active chat to the very top of history in real-time
+        setSessions((prev) => {
+          const current = prev.find((s) => s.id === activeId);
+          const updatedItem = current
+            ? { ...current, title: json.data.title || current.title, updatedAt: new Date().toISOString() }
+            : {
+                id: activeId,
+                title: json.data.title || q.slice(0, 36),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                messages: [],
+              };
+          return [updatedItem, ...prev.filter((s) => s.id !== activeId)];
+        });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Chat error:", err);
+      setErrorMessage(err?.message || "An unexpected error occurred while analyzing customer feedback.");
     } finally {
       setLoading(false);
     }
@@ -364,8 +425,8 @@ export default function AskPage() {
               <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                 Chat History ({sessions.length})
               </span>
-              <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded-md">
-                PostgreSQL
+              <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">
+                Live DB
               </span>
             </div>
 
@@ -429,6 +490,14 @@ export default function AskPage() {
             <span>+ New Chat</span>
           </button>
         </div>
+
+        {errorMessage && (
+          <div className="mb-3 p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs flex items-center justify-between">
+            <span>{errorMessage}</span>
+            <button onClick={() => setErrorMessage(null)} className="text-rose-600 font-bold ml-2">Dismiss</button>
+          </div>
+        )}
+
         {messages.length === 0 ? (
           /* HERO LAYOUT WITH FULL EMBEDDED SUNSET ORANGE HALO */
           <div className="flex-1 flex flex-col items-center justify-center px-4 relative overflow-y-auto py-8">
@@ -458,11 +527,11 @@ export default function AskPage() {
                     className="w-full text-sm text-slate-800 placeholder-slate-400 resize-none outline-none bg-transparent font-medium"
                   />
 
-                  {/* Bottom Bar: Black Circle Upward Arrow Submit Button */}
+                  {/* Bottom Bar: Submit Button */}
                   <div className="flex items-center justify-between pt-2 border-t border-slate-100/90">
                     <div className="flex items-center gap-1.5 text-[11px] font-semibold text-orange-600 bg-orange-50/80 px-2.5 py-1 rounded-full border border-orange-200/60">
                       <span>✨</span>
-                      <span>AI Copilot • PostgreSQL Active</span>
+                      <span>AI Copilot • Real-Time Live Analysis</span>
                     </div>
 
                     <button
@@ -478,7 +547,7 @@ export default function AskPage() {
                 </div>
               </div>
 
-              {/* Universal Examples of Queries (Applicable to All Themes & Fields) */}
+              {/* Universal Examples of Queries */}
               <div className="space-y-3 text-left max-w-xl mx-auto pt-2">
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Examples of queries:</p>
                 <div className="space-y-2">
@@ -533,12 +602,18 @@ export default function AskPage() {
               ))}
 
               {loading && (
-                <div className="flex items-center gap-2 p-4 bg-white border border-slate-200 rounded-2xl w-32 shadow-sm">
-                  <div className="typing-dot" />
-                  <div className="typing-dot" />
-                  <div className="typing-dot" />
+                <div className="flex items-center gap-3 p-4 bg-white border border-orange-100 rounded-2xl shadow-sm animate-fade-in max-w-md">
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 rounded-full bg-orange-500 animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <div className="w-2 h-2 rounded-full bg-orange-500 animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <div className="w-2 h-2 rounded-full bg-orange-500 animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </div>
+                  <span className="text-xs font-medium text-slate-500">Analyzing database feedback signals...</span>
                 </div>
               )}
+
+              {/* Anchor for auto-scrolling */}
+              <div ref={messagesEndRef} />
             </div>
 
             {/* Input bar in active chat */}
@@ -556,6 +631,7 @@ export default function AskPage() {
                 placeholder="Ask anything about customer feedback..."
                 className="input-base flex-1"
                 id="ask-input"
+                disabled={loading}
               />
               <button
                 type="submit"

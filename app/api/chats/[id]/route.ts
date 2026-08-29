@@ -43,12 +43,15 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       citedItems: (m.citedIds || []).map((id: string) => citedMap.get(id)).filter(Boolean),
     }));
 
-    return NextResponse.json({
-      data: {
-        ...chat,
-        messages: enrichedMessages,
+    return NextResponse.json(
+      {
+        data: {
+          ...chat,
+          messages: enrichedMessages,
+        },
       },
-    });
+      { headers: { "Cache-Control": "no-store, max-age=0" } }
+    );
   } catch (error: any) {
     if (error.status) return NextResponse.json({ error: error.message }, { status: error.status });
     return NextResponse.json({ error: "Failed to fetch chat" }, { status: 500 });
