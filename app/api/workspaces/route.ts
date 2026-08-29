@@ -17,10 +17,6 @@ export async function GET() {
   try {
     const session = await requireAuth();
 
-    if (!isAdmin(session.user.role)) {
-      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
-    }
-
     const workspaces = await db.workspace.findMany({
       include: {
         _count: {
@@ -35,9 +31,12 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
+    const activeWorkspace = workspaces.find((w) => w.id === session.user.workspaceId) || null;
+
     return NextResponse.json({
       data: workspaces,
       activeWorkspaceId: session.user.workspaceId,
+      activeWorkspace,
     });
   } catch (error: any) {
     console.error("GET Workspaces error:", error);

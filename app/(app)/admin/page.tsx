@@ -222,11 +222,14 @@ export default function AdminPage() {
       setNewWorkbookName("");
       setShowCreateWorkbookModal(false);
 
-      if (updateSession) {
+      if (updateSession && resJson.data?.id) {
+        await updateSession({ workspaceId: resJson.data.id });
+      } else if (updateSession) {
         await updateSession();
       }
 
       await loadAdminMetrics();
+      router.refresh();
     } catch (err: any) {
       notify("error", err?.message || "An unexpected error occurred");
     } finally {
@@ -250,9 +253,10 @@ export default function AdminPage() {
 
       notify("success", resJson.message || "Switched active workbook!");
       if (updateSession) {
-        await updateSession();
+        await updateSession({ workspaceId });
       }
       await loadAdminMetrics();
+      router.refresh();
     } catch (err: any) {
       notify("error", err?.message || "An unexpected error occurred");
     } finally {
@@ -283,6 +287,7 @@ export default function AdminPage() {
         await updateSession();
       }
       await loadAdminMetrics();
+      router.refresh();
     } catch (err: any) {
       notify("error", err?.message || "An unexpected error occurred");
     } finally {

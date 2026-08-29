@@ -35,11 +35,16 @@ export const authConfig: NextAuthConfig = {
 
       return targetBase;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = (user as any).id;
         token.role = (user as any).role;
         token.workspaceId = (user as any).workspaceId;
+      }
+      if (trigger === "update" && session) {
+        if (session.workspaceId) token.workspaceId = session.workspaceId;
+        if (session.role) token.role = session.role;
+        if (session.name) token.name = session.name;
       }
       return token;
     },
@@ -48,6 +53,7 @@ export const authConfig: NextAuthConfig = {
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;
         (session.user as any).workspaceId = token.workspaceId;
+        if (token.name) (session.user as any).name = token.name;
       }
       return session;
     },

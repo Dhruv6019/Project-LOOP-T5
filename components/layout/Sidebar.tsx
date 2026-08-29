@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import LoopLogo from "@/components/ui/LoopLogo";
 import { useSidebar } from "@/components/layout/SidebarContext";
 import { X } from "lucide-react";
+import { WorkbookSwitcher } from "@/components/layout/WorkbookSwitcher";
 
 const NAV_ITEMS = [
   {
@@ -97,8 +98,11 @@ export function Sidebar() {
           </button>
         </div>
 
+        {/* Workbook / Workspace Switcher */}
+        <WorkbookSwitcher />
+
         {/* Navigation items */}
-        <nav className="px-3 py-4 space-y-1">
+        <nav className="px-3 py-2 space-y-1">
           {NAV_ITEMS.map((item) => {
             if (item.writerOnly && role === "VIEWER") return null;
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");

@@ -139,22 +139,37 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = (user as any).id;
         token.role = (user as any).role;
         token.workspaceId = (user as any).workspaceId;
-      } else if (token.email && (!token.workspaceId || !token.role)) {
-        const dbUser = await db.user.findUnique({
-          where: { email: token.email },
-          select: { id: true, role: true, workspaceId: true },
-        });
-        if (dbUser) {
-          token.id = dbUser.id;
-          token.role = dbUser.role;
-          token.workspaceId = dbUser.workspaceId;
+      }
+
+      // Handle client updateSession({ workspaceId, ... }) trigger
+      if (trigger === "update" && session) {
+        if (session.workspaceId) token.workspaceId = session.workspaceId;
+        if (session.role) token.role = session.role;
+        if (session.name) token.name = session.name;
+      }
+
+      // Query database for latest user info if token has an id
+      if (token.id) {
+        try {
+          const dbUser = await db.user.findUnique({
+            where: { id: token.id as string },
+            select: { id: true, role: true, workspaceId: true, name: true },
+          });
+          if (dbUser) {
+            token.role = dbUser.role;
+            token.workspaceId = dbUser.workspaceId;
+            if (dbUser.name) token.name = dbUser.name;
+          }
+        } catch {
+          // Fallback gracefully to existing token
         }
       }
+
       return token;
     },
     async session({ session, token }) {
@@ -162,6 +177,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;
         (session.user as any).workspaceId = token.workspaceId;
+        if (token.name) (session.user as any).name = token.name;
       }
       return session;
     },
@@ -181,21 +197,38 @@ export class AuthError extends Error {
 
 /**
  * Get the current session and throw if not authenticated.
- * Returns typed session with role and workspaceId.
+ * Returns typed session with live role and workspaceId verified against the database.
  */
 export async function requireAuth() {
   const session = await auth();
   if (!session?.user?.id) {
     throw new AuthError("Unauthorized — please log in", 401);
   }
-  return session as unknown as {
+
+  // Always query database for the live user to guarantee fresh workspaceId and role
+  const dbUser = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      workspaceId: true,
+    },
+  });
+
+  if (!dbUser) {
+    throw new AuthError("Unauthorized — user account not found", 401);
+  }
+
+  return {
     user: {
-      id: string;
-      name?: string | null;
-      email?: string | null;
-      role: Role;
-      workspaceId: string;
-    };
+      id: dbUser.id,
+      name: dbUser.name ?? session.user.name,
+      email: dbUser.email ?? session.user.email,
+      role: dbUser.role as Role,
+      workspaceId: dbUser.workspaceId,
+    },
   };
 }
 

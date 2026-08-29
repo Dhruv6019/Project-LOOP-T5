@@ -37,6 +37,7 @@ export async function PATCH(
       success: true,
       message: `Active workspace switched to "${workspace.name}"`,
       data: workspace,
+      activeWorkspaceId: targetWorkspaceId,
     });
   } catch (error: any) {
     console.error("PATCH Switch Workspace error:", error);
